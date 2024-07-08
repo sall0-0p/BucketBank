@@ -1,49 +1,26 @@
 package com.bucketbank;
 import java.util.logging.Logger;
 
-import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.bucketbank.database.AccountsDatabase;
+import com.bucketbank.modules.DatabaseManager;
 
 public class App extends JavaPlugin {
     private static Logger logger;
-    private AccountsDatabase accountsDatabase;
-
+    private static DatabaseManager databaseManager;
+    private static App plugin;
+    
     @Override
     public void onEnable() {
         // Logger for logs
         logger = getLogger();
+        plugin = this;
 
         // Config loading
         saveDefaultConfig();
-        FileConfiguration config = getConfig();
 
-        String greeting = config.getString("greeting-message");
-        logger.info(greeting);
-
-        // Database initialisation
-        try {
-
-            if (!getDataFolder().exists()) {
-                getDataFolder().mkdirs();
-            }
-
-            accountsDatabase = new AccountsDatabase(getDataFolder().getAbsolutePath() + "/accounts.db");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.severe("Failed to load accounts Database");
-            Bukkit.getPluginManager().disablePlugin(this);
-        }
-
-        // Database tests:
-        try {
-            String accountId = accountsDatabase.createAccount("_lordBucket");
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        // Init Databases
+        databaseManager = new DatabaseManager();
 
         // Final Log
         logger.info("Banking loaded!");
@@ -51,15 +28,16 @@ public class App extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        // Close Database
-        try {
-            accountsDatabase.closeConnection();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-            
-        
+        databaseManager.closeConnections();
         // Final log
         logger.info("Banking unloaded");
+    }
+
+    public static App getPlugin() {
+        return plugin;
+    }
+
+    public static DatabaseManager getDatabaseManager() {
+        return databaseManager;
     }
 }
