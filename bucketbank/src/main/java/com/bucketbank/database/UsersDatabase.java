@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import com.bucketbank.App;
 import com.bucketbank.modules.DatabaseManager;
@@ -18,6 +19,7 @@ public class UsersDatabase {
     private final Connection connection;
     private static final App plugin = App.getPlugin();
     private static DatabaseManager databaseManager = App.getDatabaseManager();
+    private static final Logger logger = plugin.getLogger();
 
     public UsersDatabase(String path) throws SQLException {
         connection = DriverManager.getConnection("jdbc:sqlite:" + path);
@@ -27,8 +29,8 @@ public class UsersDatabase {
             statement.execute("CREATE TABLE IF NOT EXISTS users (" +
                 "userId TEXT NOT NULL PRIMARY KEY, " +
                 "username TEXT NOT NULL, " +
-                "profileCreatedTimestamp NOT NULL BIGINT, " +
-                "personalAccountId TEXT NOT NULL, " +
+                "profileCreatedTimestamp BIGINT NOT NULL, " +
+                "personalAccountId TEXT DEFAULT 000000, " +
                 "suspended BOOL DEFAULT 0, " +
                 "debt INT DEFAULT 0, " +
                 "deleted BOOL DEFAULT 0" +
@@ -43,28 +45,31 @@ public class UsersDatabase {
     };
 
     public void createUser(String userId) throws SQLException {
-        String sql = "INSERT INTO users (userId, username, profileCreatedTimestamp, personalAccountId) VALUES (?, ?, ?, ?)";
-        String username = "_lordBucket";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            long unixTimestamp = (System.currentTimeMillis() / 1000L);
-            String personalAccountId = databaseManager.getAccountsDatabase().createAccount(username);
+        String sql = "INSERT INTO users (userId, username, profileCreatedTimestamp) VALUES (?, ?, ?)";
 
-            preparedStatement.setString(1, userId);
-            preparedStatement.setString(2, username);
-            preparedStatement.setLong(3, unixTimestamp);
+        if (!userExists(userId)) {
+            String username = userId; // change later, when adapting to spigot
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                long unixTimestamp = (System.currentTimeMillis() / 1000L);
 
-            preparedStatement.setString(4, personalAccountId);
-            preparedStatement.executeUpdate();
+                preparedStatement.setString(1, userId);
+                preparedStatement.setString(2, username);
+                preparedStatement.setLong(3, unixTimestamp);
+
+                preparedStatement.executeUpdate();
+            }
         }
     }
 
     public void deleteUser(String userId) throws SQLException {
         String sql = "UPDATE accounts SET deleted = ? WHERE accountId = ?";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setBoolean(1, true);
-            preparedStatement.setString(2, userId);
-            preparedStatement.executeUpdate();
+        if (userExists(userId)) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setBoolean(1, true);
+                preparedStatement.setString(2, userId);
+                preparedStatement.executeUpdate();
+            }
         }
     }
 
@@ -74,11 +79,23 @@ public class UsersDatabase {
             preparedStatement.setString(1, userId);
             ResultSet resultSet = preparedStatement.executeQuery();
 
-            return resultSet.next();
+            boolean result = resultSet.next();
+            return result;
         }
     }
 
     // setters
+    public void setPersonalAccountId(String userId, String accountId) throws SQLException {
+        String sql = "UPDATE users SET personalAccountId = ? WHERE userId = ?";
+        if (userExists(userId)) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setString(1, accountId);
+                preparedStatement.setString(2, userId);
+                preparedStatement.executeUpdate();
+            }
+        }
+    }
+
     public void setSuspendedStatus(String userId, boolean freezed) throws SQLException {
         String sql = "UPDATE users SET suspended = ? WHERE userId = ?";
         if (userExists(userId)) {
@@ -150,11 +167,11 @@ public class UsersDatabase {
                 if (resultSet.next()) {
                     return resultSet.getString("personalAccountId");
                 } else {
-                    return "";
+                    return "000000";
                 }
             }
         } else {
-            return "";
+            return "000000";
         }
     }
 
@@ -184,7 +201,7 @@ public class UsersDatabase {
                 ResultSet resultSet = preparedStatement.executeQuery();
 
                 if (resultSet.next()) {
-                    return resultSet.getInt("suspended");
+                    return resultSet.getInt("debt");
                 } else {
                     return 0;
                 }
@@ -194,31 +211,63 @@ public class UsersDatabase {
         }
     }
 
-    public List<String> getAllAccessibleAccounts(String accountId, String ownerId) throws SQLException {
+    public boolean isDeleted(String userId) throws SQLException {
+        String sql = "SELECT deleted FROM users WHERE userId = ?";
+        if (userExists(userId)) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setString(1, userId);
+                ResultSet resultSet = preparedStatement.executeQuery();
+
+                if (resultSet.next()) {
+                    return resultSet.getBoolean("deleted");
+                } else {
+                    return false;
+                }
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public List<String> getAllAccessibleAccounts(String userId) throws SQLException {
         String sql = "SELECT accountId FROM account_access WHERE userId = ?";
-        List<String> userIds = new ArrayList<>();
+        List<String> accountIds = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, accountId);
-            preparedStatement.setString(2, ownerId);
+            preparedStatement.setString(1, userId);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
-                    userIds.add(resultSet.getString("userId"));
+                    accountIds.add(resultSet.getString("accountId"));
                 }
             }
         }
-        return userIds;
+        return accountIds;
+    }
+
+    public List<String> getAllOwnedAccounts(String userId) throws SQLException {
+        String sql = "SELECT accountId FROM accounts WHERE ownerId = ?";
+        List<String> accountIds = new ArrayList<>();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, userId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    accountIds.add(resultSet.getString("accountId"));
+                }
+            }
+        }
+        return accountIds;
     }
 
     // get all
     public Map<String, Object> getData(String userId) throws SQLException {
-        Map<String, Object> data = new HashMap<String, Object>();
+        Map<String, Object> data = new HashMap<>();
 
         data.put("uuid", userId);
         data.put("username", getUsername(userId));
-        data.put("creatingEpoch", getCreationTimestamp(userId));
+        data.put("profileCreatedTimestamp", getCreationTimestamp(userId));
         data.put("suspended", getSuspendedStatus(userId));
         data.put("personalAccountId", getPersonalAccountId(userId));
         data.put("debt", getDebt(userId));
+        data.put("deleted", isDeleted(userId));
 
         return data;
     }

@@ -11,8 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.bukkit.entity.Player;
-
 public class AccountsDatabase {
     private final Connection connection;
 
@@ -23,7 +21,7 @@ public class AccountsDatabase {
         try (Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE IF NOT EXISTS accounts (" +
                 "accountId TEXT PRIMARY KEY, " +
-                "FOREIGN KEY (ownerId) REFERENCES users(userId), " +
+                "ownerId TEXT NOT NULL, " +
                 "balance INTEGER NOT NULL DEFAULT 0, " +
                 "suspended BOOL DEFAULT 0, " +
                 "deleted BOOL DEFAULT 0" +
@@ -34,10 +32,7 @@ public class AccountsDatabase {
         try (Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE IF NOT EXISTS account_access (" +
                 "accountId TEXT NOT NULL, " +
-                "userId TEXT NOT NULL, " +
-                "PRIMARY KEY (accountId, userId), " +
-                "FOREIGN KEY (accountId) REFERENCES accounts(accountId), " +
-                "FOREIGN KEY (userId) REFERENCES users(userId)" +
+                "userId TEXT NOT NULL" +
                 ")");
         }
     };
@@ -171,13 +166,31 @@ public class AccountsDatabase {
         }
     }
 
+    public boolean isDeleted(String accountId) throws SQLException {
+        if (accountExists(accountId)) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT deleted FROM accounts WHERE accountId = ?")) {
+                preparedStatement.setString(1, accountId);
+                ResultSet resultSet = preparedStatement.executeQuery();
+
+                if (resultSet.next()) {
+                    return resultSet.getBoolean("deleted");
+                } else {
+                    return false;
+                }
+            }
+        } else {
+            return false;
+        }
+    }
+
     // get all
     public Map<String, Object> getData(String accountId) throws SQLException {
-        Map<String, Object> data = new HashMap<String, Object>();
+        Map<String, Object> data = new HashMap<>();
 
         data.put("uuid", getOwner(accountId));
         data.put("balance", getBalance(accountId));
         data.put("suspended", getSuspendedStatus(accountId));
+        data.put("deleted", isDeleted(accountId));
         return data;
     }
 
@@ -206,11 +219,32 @@ public class AccountsDatabase {
         }
     }
 
+    public boolean isPersonal(String accountId) throws SQLException {
+        String query = "SELECT COUNT(*) FROM users WHERE personalAccountId = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setString(1, accountId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
+    }
+
     public void removeAccessFromAccount(String accountId, String userId) throws SQLException {
         String sql = "DELETE FROM account_access WHERE accountId = ? AND userId = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setString(1, accountId);
             preparedStatement.setString(2, userId);
+            preparedStatement.executeUpdate();
+        }
+    }
+
+    public void removeAccessAllFromAccount(String accountId) throws SQLException {
+        String sql = "DELETE FROM account_access WHERE account_id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, accountId);
             preparedStatement.executeUpdate();
         }
     }

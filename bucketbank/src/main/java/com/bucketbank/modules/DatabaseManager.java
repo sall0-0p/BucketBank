@@ -30,7 +30,7 @@ public class DatabaseManager {
     
         } catch (SQLException e) {
             e.printStackTrace();
-            logger.severe("Failed to load accounts Database");
+            logger.severe("Failed to load Database");
             Bukkit.getPluginManager().disablePlugin(plugin);
         }
     }
