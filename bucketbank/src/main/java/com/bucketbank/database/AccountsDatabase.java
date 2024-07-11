@@ -21,6 +21,7 @@ public class AccountsDatabase {
         try (Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE IF NOT EXISTS accounts (" +
                 "accountId TEXT PRIMARY KEY, " +
+                "displayName TEXT DEFAULT Account, " +
                 "ownerId TEXT NOT NULL, " +
                 "balance INTEGER NOT NULL DEFAULT 0, " +
                 "suspended BOOL DEFAULT 0, " +
@@ -48,7 +49,6 @@ public class AccountsDatabase {
         String accountId = generateAccountId();
         try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO accounts (accountId, ownerId) VALUES (?, ?)")) {
             preparedStatement.setString(1, accountId);
-            // preparedStatement.setString(2, accountOwner.getUniqueId().toString());
             preparedStatement.setString(2, accountOwnerId);
             preparedStatement.executeUpdate();
 
@@ -104,6 +104,16 @@ public class AccountsDatabase {
         }
     }
 
+    public void setDisplayName(String accountId, String name) throws SQLException {
+        if (accountExists(accountId)) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE accounts SET displayName = ? WHERE accountId = ?")) {
+                preparedStatement.setString(1, name);
+                preparedStatement.setString(2, accountId);
+                preparedStatement.executeUpdate();
+            }
+        }
+    }
+
     public void setSuspendedStatus(String accountId, boolean freezed) throws SQLException {
         if (accountExists(accountId)) {
             try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE accounts SET suspended = ? WHERE accountId = ?")) {
@@ -140,6 +150,23 @@ public class AccountsDatabase {
 
                 if (resultSet.next()) {
                     return resultSet.getString("ownerId");
+                } else {
+                    return "";
+                }
+            }
+        } else {
+            return "";
+        }
+    }
+
+    public String getDisplayName(String accountId) throws SQLException {
+        if (accountExists(accountId)) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT displayName FROM accounts WHERE accountId = ?")) {
+                preparedStatement.setString(1, accountId);
+                ResultSet resultSet = preparedStatement.executeQuery();
+
+                if (resultSet.next()) {
+                    return resultSet.getString("displayName");
                 } else {
                     return "";
                 }
@@ -188,6 +215,7 @@ public class AccountsDatabase {
         Map<String, Object> data = new HashMap<>();
 
         data.put("uuid", getOwner(accountId));
+        data.put("displayName", getDisplayName(accountId));
         data.put("balance", getBalance(accountId));
         data.put("suspended", getSuspendedStatus(accountId));
         data.put("deleted", isDeleted(accountId));
@@ -266,7 +294,7 @@ public class AccountsDatabase {
     // private functions
     private String generateAccountId() {
         double rawId = Math.floor((Math.random() * (999999 - 100000) + 100000));
-        String accountIdNumber = String.valueOf(rawId);
+        String accountIdNumber = String.valueOf((int) rawId);
         try {
             if (!accountExists(accountIdNumber)) {
                 return accountIdNumber;

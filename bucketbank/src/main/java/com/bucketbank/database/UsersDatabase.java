@@ -33,6 +33,7 @@ public class UsersDatabase {
                 "personalAccountId TEXT DEFAULT 000000, " +
                 "suspended BOOL DEFAULT 0, " +
                 "debt INT DEFAULT 0, " +
+                "accountLimit INT DEFAULT 3, " +
                 "deleted BOOL DEFAULT 0" +
             ")");
         }
@@ -44,11 +45,10 @@ public class UsersDatabase {
         }
     };
 
-    public void createUser(String userId) throws SQLException {
+    public void createUser(String userId, String username) throws SQLException {
         String sql = "INSERT INTO users (userId, username, profileCreatedTimestamp) VALUES (?, ?, ?)";
 
         if (!userExists(userId)) {
-            String username = userId; // change later, when adapting to spigot
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                 long unixTimestamp = (System.currentTimeMillis() / 1000L);
 
@@ -62,7 +62,7 @@ public class UsersDatabase {
     }
 
     public void deleteUser(String userId) throws SQLException {
-        String sql = "UPDATE accounts SET deleted = ? WHERE accountId = ?";
+        String sql = "UPDATE users SET deleted = ? WHERE userId = ?";
 
         if (userExists(userId)) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
@@ -118,6 +118,18 @@ public class UsersDatabase {
             }
         }
     }
+
+    public void setAccountLimit(String userId, int newLimit) throws SQLException {
+        String sql = "UPDATE users SET accountLimit = ? WHERE userId = ?";
+        if (userExists(userId)) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setInt(1, newLimit);
+                preparedStatement.setString(2, userId);
+                preparedStatement.executeUpdate();
+            }
+        }
+    }
+
     // getters
     public String getUsername(String userId) throws SQLException {
         String sql = "SELECT username FROM users WHERE userId = ?";
@@ -211,6 +223,24 @@ public class UsersDatabase {
         }
     }
 
+    public int getAccountLimit(String userId) throws SQLException {
+        String sql = "SELECT accountLimit FROM users WHERE userId = ?";
+        if (userExists(userId)) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setString(1, userId);
+                ResultSet resultSet = preparedStatement.executeQuery();
+
+                if (resultSet.next()) {
+                    return resultSet.getInt("accountLimit");
+                } else {
+                    return 0;
+                }
+            }
+        } else {
+            return 0;
+        }
+    }
+
     public boolean isDeleted(String userId) throws SQLException {
         String sql = "SELECT deleted FROM users WHERE userId = ?";
         if (userExists(userId)) {
@@ -267,6 +297,7 @@ public class UsersDatabase {
         data.put("suspended", getSuspendedStatus(userId));
         data.put("personalAccountId", getPersonalAccountId(userId));
         data.put("debt", getDebt(userId));
+        data.put("accountLimit", getAccountLimit(userId));
         data.put("deleted", isDeleted(userId));
 
         return data;

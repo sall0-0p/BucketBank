@@ -1,0 +1,158 @@
+# <color:#DB6D53> - copper
+# <color:#66AC7E> - old copper
+
+# about
+about: "<color:#DB6D53>| <reset>BucketFinance v1.0 <color:#db6d53>created by <reset>_lordBucket<color:#db6d53>!"
+
+# reload
+reloaded: "<color:#66AC7E>| Plugin Reloaded!"
+reload_failed: "<red>| Reload failed!"
+
+# pay command
+# placeholders:
+# %sender% - eitherid of account or username (depending on command) of person who sent
+# %receiver% - either id of account or username (depending on command) of person who sent
+# %amount% - amount of money sent
+# %description% - description
+pay.account: "<color:#66AC7E>| You have sent <gold>%amount%$ <color:#66AC7E>еo account <white>%receiver% <color:#66AC7E>from your personal account!"
+pay.username: "<color:#66AC7E>| You have sent <gold>%amount%$ <color:#66AC7E>to user <white>%receiver% <color:#66AC7E>from your personal account!"
+pay.account_account: "<color:#66AC7E>| You have sent <gold>%amount%$ <color:#66AC7E>to account <white>%receiver% <color:#66AC7E>from account <white>%sender%<color:#66AC7E>!"
+pay.account_username: "<color:#66AC7E>| You have sent <gold>%amount%$ <color:#66AC7E>to user <white>%receiver% <color:#66AC7E>from account <white>%sender%<color:#66AC7E>! "
+pay.default_note: ""
+
+# user
+# Placeholders:
+# %user% - user nickname
+# %userId% - user ID
+user: 
+  created: "<color:#66AC7E>| User <reset>%user% <color:#66AC7E>created!"
+  deleted: "<color:#66AC7E>| User <reset>%user% <color:#66AC7E>deleted!"
+  suspended: "<color:#66AC7E>| User <reset>%user% <color:#66AC7E>was suspended!"
+  reinstated: "<color:#66AC7E>| User <reset>%user% <color:#66AC7E>is no longer suspended!"
+  limit_changed: "<color:#66AC7E>| Account Limit successfully changed!"
+  status:
+    suspended: "<red>[Suspended]<reset>"
+    not_suspended: "<color:#66AC7E>[Operational]<reset>"
+    deleted: "<dark_red>[Deleted]<reset>"
+  
+  # about has special placeholders
+  # %account% gives account id of user
+  # %status% returns either status.suspended or status.not_suspended
+  # %creation_date% displays account creating date in format: HH:mm dd/MM/yyyy
+  # %account_limit% represents account_limit
+
+  # buttons:
+  # %account_list%
+  # %suspend% - responsible for both suspend and reinstate buttons.
+  about: |-
+    <color:#DB6D53>| ----------------------------------------
+    <color:#DB6D53>| <bold>Info for <gold>%user%<reset>
+    <color:#DB6D53>| ----------------------------------------
+    <color:#DB6D53>| User Status: %status%
+    <color:#DB6D53>| User Created: <reset>%creation_date%<reset>
+    <color:#DB6D53>| Account Limit: <reset>%account_limit%<reset> <hover:show_text:'<reset>Click to here to change %user% accounts limit'><click:suggest_command:/bf user limit set %user% ><color:#DB6D53>[<white>Change<color:#DB6D53>]<reset>
+    <color:#DB6D53>| Personal Account: <reset>%account%<reset>
+    <color:#DB6D53>|
+    <color:#DB6D53>| %account_list% %suspend%
+    <color:#DB6D53>| ----------------------------------------
+
+  buttons:
+    account_list: <hover:show_text:'<reset>Click to see list of accounts %user% owns'><click:run_command:/bf user accounts %user%><color:#DB6D53>[<white>Accounts<color:#DB6D53>]<reset>
+    suspend: <hover:show_text:'<reset>Click to here to suspend %user%'><click:suggest_command:/bf user suspend %user%><color:#DB6D53>[<white>Suspend<color:#DB6D53>]<reset>
+    reinstate: <hover:show_text:'<reset>Click to here to reinstate %user%'><click:suggest_command:/bf user reinstate %user%><color:#DB6D53>[<white>Reinstate<color:#DB6D53>]<reset>
+# user
+# Placeholders:
+# %accountId% - account Id
+# %owner% - owner nickname
+# %ownerId% - owner ID
+# %display_name% - account display name
+# %balance% - account balance
+account:
+  created: "<color:#66AC7E>| Account <white>%accountId% <color:#66AC7E>(<white>%owner%<color:#66AC7E>) created!"
+  balance_account: "<color:#DB6D53>| Account <reset>%accountId% <color:#DB6D53>has <gold>%balance%$ <color:#DB6D53>on it."
+  balance_user: "<color:#DB6D53>| User <reset>%owner% <color:#DB6D53>has <gold>%balance%$ <color:#DB6D53>on his personal account."
+  balance_self: "<color:#DB6D53>| You have <gold>%balance%$ <color:#DB6D53>on your personal account."
+  set_balance: "<color:#66AC7E>| Balance of <reset>%owner% <color:#66AC7E>is set to <gold>%balance%$<color:#66AC7E>."
+  suspended: "<color:#66AC7E>| Account <reset>%accountId% <color:#66AC7E>was suspended!"
+  reinstated: "<color:#66AC7E>| Account <reset>%accountId% <color:#66AC7E>is no longer suspended!"
+  status:
+    suspended: "<red>[Suspended]<reset>"
+    not_suspended: "<color:#66AC7E>[Operational]<reset>"
+    deleted: "<dark_red>[Deleted]<reset>"
+
+  added_user: "<color:#66AC7E>| Successfully added <white>%username% <color:#66AC7E>to account <white>%accountId%<color:#66AC7E>."
+  removed_user: "<color:#66AC7E>| Successfully removed <white>%username% <color:#66AC7E>from account <white>%accountId%<color:#66AC7E>."
+
+# lists
+lists:
+  # List for accounts. 
+  accounts:
+    # Placeholders for both header and footer:
+    # %user%
+    # %userId%
+    # %account_limit%
+    # %account_count%
+    # %current_page%
+    # %page_count%
+    header: |
+      <color:#DB6D53>| ----------------------------------------
+      <color:#DB6D53>| Page [<white>%current_page%<color:#DB6D53>/<white>%page_count%<color:#DB6D53>] | Accounts of <gold>%user%<reset>
+      <color:#DB6D53>| ----------------------------------------
+      
+    footer: |-
+      <color:#DB6D53>| [<reset>%account_count%/%account_limit%<color:#DB6D53>]
+      <color:#DB6D53>| ----------------------------------------
+
+    # Placeholders for item:
+    # %accountId%
+    # %display_name%
+    # %balance%
+    # %status%
+    item: |
+      <color:#DB6D53>| <white>%display_name% <color:#DB6D53>(<white>%accountId%<color:#DB6D53>): <gold>%balance%$
+      <color:#DB6D53>| > %status%
+  
+  transactions:
+    # Placeholders for header/footer:
+    # %owner%
+    # %ownerId%
+    # %accountId%
+    # %displayName%
+    # %transaction_count%
+    # %current_page%
+    # %page_count%
+    header: |
+      <color:#DB6D53>| ----------------------------------------
+      <color:#DB6D53>| Page [<white>%current_page%<color:#DB6D53>/<white>%page_count%<color:#DB6D53>] | Transactions of <white>%displayName%<reset> <color:#DB6D53>(<white>%accountId%<color:#DB6D53>)
+      <color:#DB6D53>| ----------------------------------------
+
+    footer: |-
+      <color:#DB6D53>| Total Count: <white>%transaction_count%
+      <color:#DB6D53>| ----------------------------------------
+
+    # Placeholders:
+    # %transactionId%
+    # %sourceId%
+    # %type%
+    # %source_player%
+    # %sourceId%
+    # %destination_player%
+    # %destinationId%
+    # %amount%
+    # %description%
+    # %timestamp%
+
+    outbound_item: |
+      <color:#DB6D53>| <bold><red>-%amount%$<reset> <color:#DB6D53>| <hover:show_text:'<color:#DB6D53>Owner: <reset>%destination_player%<newline><color:#DB6D53>ID: <reset>%destinationId%'><white>%destination_displayName%<reset>
+      <color:#DB6D53>| Timestamp: <white>%timestamp%<reset>
+      <color:#DB6D53>| Note: <white>%description%<reset>
+      <color:#DB6D53>| 
+
+    inbound_item: |
+      <color:#DB6D53>| <bold><color:#66AC7E>+%amount%$<reset> <color:#DB6D53>| <hover:show_text:'<color:#DB6D53>Owner: <reset>%source_player%<newline><color:#DB6D53>ID: <reset>%sourceId%'><white>%source_displayName%<reset>
+      <color:#DB6D53>| Timestamp: <white>%timestamp%<reset>
+      <color:#DB6D53>| Note: <white>%description%<reset>
+      <color:#DB6D53>| 
+
+# errors
+command_failed: "<red>| Failed to execute command, check console for errors."

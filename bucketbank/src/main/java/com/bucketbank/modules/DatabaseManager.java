@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 
 import com.bucketbank.App;
 import com.bucketbank.database.AccountsDatabase;
+import com.bucketbank.database.TransactionsDatabase;
 import com.bucketbank.database.UsersDatabase;
 
 public class DatabaseManager {
@@ -16,6 +17,7 @@ public class DatabaseManager {
     // Databases
     private AccountsDatabase accountsDatabase;
     private UsersDatabase usersDatabase;
+    private TransactionsDatabase transactionsDatabase;
 
     // Initialisation (constructor)
     public DatabaseManager() {
@@ -27,6 +29,7 @@ public class DatabaseManager {
     
             accountsDatabase = new AccountsDatabase(plugin.getDataFolder().getAbsolutePath() + "/database.db");
             usersDatabase = new UsersDatabase(plugin.getDataFolder().getAbsolutePath() + "/database.db");
+            transactionsDatabase = new TransactionsDatabase(plugin.getDataFolder().getAbsolutePath() + "/database.db");
     
         } catch (SQLException e) {
             e.printStackTrace();
@@ -44,11 +47,16 @@ public class DatabaseManager {
         return usersDatabase;
     }
 
+    public TransactionsDatabase getTransactionsDatabase() {
+        return transactionsDatabase;
+    }
+
     // Close connections
     public void closeConnections() {
         try {
             accountsDatabase.closeConnection();
             usersDatabase.closeConnection();
+            transactionsDatabase.closeConnection();
         } catch (SQLException e) {
             e.printStackTrace();
         }

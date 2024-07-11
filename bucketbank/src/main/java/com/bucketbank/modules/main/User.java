@@ -4,7 +4,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Logger;
+
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 
 import com.bucketbank.App;
 import com.bucketbank.database.AccountsDatabase;
@@ -24,6 +28,7 @@ public class User {
     private String personalAccountId;
     private boolean suspended;
     private int debt;
+    private int accountLimit;
     private boolean deleted;
 
     // constructor (load user)
@@ -39,6 +44,7 @@ public class User {
             personalAccountId = (String) userData.get("personalAccountId");
             suspended = (Boolean) userData.get("suspended");
             debt = (Integer) userData.get("debt");
+            accountLimit = (Integer) userData.get("accountLimit");
             deleted = (Boolean) userData.get("deleted");
 
         } catch (SQLException e) {
@@ -46,22 +52,51 @@ public class User {
         }
 
     }
-    // constructor (create new user)
-    public User(String userId, boolean createNewUser) throws Exception {
+
+    public User(OfflinePlayer player) throws Exception {
+        String userId = player.getUniqueId().toString();
+
+        try {
+            if (!usersDatabase.userExists(userId)) {
+                throw new Exception("User does not exist!");
+            }
+            Map<String, Object> userData = usersDatabase.getData(userId);
+            this.userId = userId;
+            this.username = (String) userData.get("username");
+            this.profileCreatedTimestamp = (long) userData.get("profileCreatedTimestamp");
+            this.personalAccountId = (String) userData.get("personalAccountId");
+            this.suspended = (Boolean) userData.get("suspended");
+            this.debt = (Integer) userData.get("debt");
+            this.accountLimit = (Integer) userData.get("accountLimit");
+            this.deleted = (Boolean) userData.get("deleted");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+    
+    // constructor (create new user from id)
+    public User(OfflinePlayer player, boolean createNewUser) throws Exception {
+        String userId = player.getUniqueId().toString();
+        String username = player.getName();
+
         if (!usersDatabase.userExists(userId)) {
             try {
-                usersDatabase.createUser(userId);
+                usersDatabase.createUser(userId, username);
     
                 // assing other values
                 this.userId = userId;
-                this.username = userId; // change when adapting to spigot
+                this.username = username;
                 this.profileCreatedTimestamp = usersDatabase.getCreationTimestamp(userId);
                 this.suspended = usersDatabase.getSuspendedStatus(userId);
                 this.debt = usersDatabase.getDebt(userId);
+                this.accountLimit = usersDatabase.getAccountLimit(userId);
                 this.deleted = usersDatabase.isDeleted(userId);
 
                 // create personal account for user
                 Account personalAccount = new Account(userId, true);
+                personalAccount.setDisplayName(this.username);
 
                 personalAccountId = personalAccount.getAccountId();
                 usersDatabase.setPersonalAccountId(userId, personalAccountId);
@@ -100,6 +135,21 @@ public class User {
             return "";
         }
     }
+
+    public long getProfileCreatedTimestamp() {
+        return profileCreatedTimestamp;
+    }
+
+    public boolean isDeleted() {
+        try {
+            deleted = usersDatabase.isDeleted(this.userId);
+            return deleted;
+        } catch (SQLException e) {
+            logger.severe("Failed to check if user is deleted | " + userId);
+            e.printStackTrace();
+            return true;
+        }
+    }
     
     public boolean isSuspended() {
         try {
@@ -114,6 +164,17 @@ public class User {
 
     public void getDebt() {
         // later
+    }
+
+    public Integer getAccountLimit() {
+        try {
+            return usersDatabase.getAccountLimit(userId);
+        } catch (SQLException e) {
+            logger.severe("Failed to get account limit for user " + userId);
+            e.printStackTrace();
+            
+            return 0;
+        }
     }
 
     public List<String> getOwnedAccounts() {
@@ -184,6 +245,15 @@ public class User {
         }
     }
 
+    public void setAccountLimit(Integer newLimit) {
+        try {
+            usersDatabase.setAccountLimit(userId, newLimit);
+        } catch (SQLException e) {
+            logger.severe("Failed to set account limit for user " + userId);
+            e.printStackTrace();
+        }
+    }
+
     public void pardonDebt() {
         // for future
     }
@@ -201,7 +271,24 @@ public class User {
             this.deleted = true;
 
         } catch (SQLException e) {
-            throw new Exception("Failed to obtain list of owned accounts.");
+            e.printStackTrace();
+            throw new Exception("Failed to check delete user");
         }
+    }
+
+    // exists (by username)
+    public static boolean existsWithUsername(String username) {
+        OfflinePlayer player = Bukkit.getOfflinePlayer(username);
+        UUID userId = player.getUniqueId();
+
+        try {
+            return usersDatabase.userExists(userId.toString());
+        } catch (SQLException e) {
+            logger.severe("Failed to check if user exists with nickname " + username);
+            e.printStackTrace();
+
+            return false;
+        }
+        
     }
 }
