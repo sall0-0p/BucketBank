@@ -28,7 +28,7 @@ public class BalanceCommand implements Command {
             Account account;
             String messageType;
 
-            if (args.length == 0) {
+            if (args.length == (int) 0) {
                 if (sender instanceof Player) {
                     User user = new User(((Player) sender).getUniqueId().toString());
 

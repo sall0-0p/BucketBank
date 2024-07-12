@@ -6,6 +6,7 @@ import java.util.Map;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
+import com.bucketbank.App;
 import com.bucketbank.commands.bucketfinance.AboutCommand;
 import com.bucketbank.commands.bucketfinance.BalanceCommand;
 import com.bucketbank.commands.bucketfinance.PayCommand;
@@ -28,6 +29,7 @@ import com.bucketbank.commands.bucketfinance.user.SuspendUserCommand;
 
 public class CommandHandler implements CommandExecutor {
     private final Map<String, Command> commands = new HashMap<>();
+    private final App plugin = App.getPlugin();
 
     public CommandHandler() {
         // main
@@ -58,32 +60,65 @@ public class CommandHandler implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, org.bukkit.command.Command cmd, String label, String[] args) {
-        if (args.length == 0) {
-            sender.sendMessage("| Usage: /bucketfinance <command> [sub-command] [arguments]");
+        try {
+            if (args.length == 0) {
+                sender.sendMessage("| Usage: /bucketfinance <command> [sub-command] [arguments]");
+                return true;
+            }
+    
+            StringBuilder subCommandPath = new StringBuilder(args[0]);
+            Command command = commands.get(subCommandPath.toString());
+            String coreArgument = "";
+    
+            if (args[0].equals("account") || args[0].equals("user")) {
+                int index = 2;
+
+                while (command == null && index < args.length) {
+                    subCommandPath.append(" ").append(args[index]);
+                    command = commands.get(subCommandPath.toString());
+                    index++;
+                }
+    
+                coreArgument = args[1];
+
+                String[] subCommandArgs = new String[args.length - index + 1];
+                subCommandArgs[0] = coreArgument;
+                for (int i = index; i < args.length; i++) {
+                    subCommandArgs[i - index + 1] = args[i];
+                }
+
+                if (command == null) {
+                    sender.sendMessage("| Unknown command. Type \"/help\" for help.");
+                    return true;
+                }
+
+                command.execute(sender, subCommandArgs);
+            } else {
+                int index = 1;
+
+                while (command == null && index < args.length) {
+                    subCommandPath.append(" ").append(args[index]);
+                    command = commands.get(subCommandPath.toString());
+                    index++;
+                }
+        
+                if (command == null) {
+                    sender.sendMessage("| Unknown command. Type \"/help\" for help.");
+                    return true;
+                }
+        
+                // Create a new array for the remaining arguments
+                String[] subCommandArgs = new String[args.length - index];
+                System.arraycopy(args, index, subCommandArgs, 0, args.length - index);
+        
+                command.execute(sender, subCommandArgs);
+            }
+    
+            return true;
+        } catch (Exception e) {
+            sender.sendMessage("| Command Handler failed, check console!");
+            e.printStackTrace();
             return true;
         }
-
-        StringBuilder subCommandPath = new StringBuilder(args[0]);
-        Command command = commands.get(subCommandPath.toString());
-
-        int index = 1;
-        while (command == null && index < args.length) {
-            subCommandPath.append(" ").append(args[index]);
-            command = commands.get(subCommandPath.toString());
-            index++;
-        }
-
-        if (command == null) {
-            sender.sendMessage("| Unknown command. Type \"/help\" for help.");
-            return true;
-        }
-
-        // Create a new array for the remaining arguments
-        String[] subCommandArgs = new String[args.length - index];
-        System.arraycopy(args, index, subCommandArgs, 0, args.length - index);
-
-        command.execute(sender, subCommandArgs);
-
-        return true;
     }
 }
