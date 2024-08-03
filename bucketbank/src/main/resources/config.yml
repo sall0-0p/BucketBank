@@ -1,2 +1,10 @@
 # BucketFinance configuration
 
+# Currency settings
+currency:
+  item: PAPER
+  name: "<aqua><bold>Ⱥ Фрины<reset>"
+  lore: 
+    - "<reset><gray>Это официальная валюта сервера"
+    - "<reset><gray>Подписано игроком Bank_FrienMine"
+  custom_model: 1

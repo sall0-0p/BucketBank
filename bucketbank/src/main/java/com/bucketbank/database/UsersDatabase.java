@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import com.bucketbank.App;
-import com.bucketbank.modules.DatabaseManager;
+import com.bucketbank.modules.managers.DatabaseManager;
 
 public class UsersDatabase {
     private final Connection connection;

@@ -108,7 +108,7 @@ public class TransactionsDatabase {
         return transactions;
     }
 
-    public Integer getTotalInFlow(String accountId) throws SQLException {
+    public int getTotalInFlow(String accountId) throws SQLException {
         List<Transaction> transactions = new ArrayList<>();
         String query = "SELECT SUM(amount) AS totalInflow FROM transactions WHERE destinationAccountId = ?";
 
@@ -120,10 +120,10 @@ public class TransactionsDatabase {
                 }
             }
         }
-        return null;
+        return 0;
     }
 
-    public Integer getTotalOutFlow(String accountId) throws SQLException {
+    public int getTotalOutFlow(String accountId) throws SQLException {
         List<Transaction> transactions = new ArrayList<>();
         String query = "SELECT SUM(amount) AS totalInflow FROM transactions WHERE sourceAccountId = ?";
 
@@ -135,7 +135,7 @@ public class TransactionsDatabase {
                 }
             }
         }
-        return null;
+        return 0;
     }
 
     public List<Transaction> getRecentTransactions(String accountId, int limit) throws SQLException {

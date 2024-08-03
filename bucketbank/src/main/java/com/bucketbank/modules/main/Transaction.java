@@ -6,7 +6,7 @@ import org.bukkit.OfflinePlayer;
 
 import com.bucketbank.App;
 import com.bucketbank.database.TransactionsDatabase;
-import com.bucketbank.modules.DatabaseManager;
+import com.bucketbank.modules.managers.DatabaseManager;
 
 public class Transaction {
     private String transactionId;

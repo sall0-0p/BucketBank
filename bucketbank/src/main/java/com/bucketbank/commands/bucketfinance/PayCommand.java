@@ -10,8 +10,10 @@ import org.bukkit.entity.Player;
 import com.bucketbank.App;
 import com.bucketbank.modules.Command;
 import com.bucketbank.modules.Messages;
-import com.bucketbank.modules.TransactionManager;
+import com.bucketbank.modules.main.Account;
+import com.bucketbank.modules.main.Notification;
 import com.bucketbank.modules.main.User;
+import com.bucketbank.modules.managers.TransactionManager;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -32,12 +34,14 @@ public class PayCommand implements Command {
     public void execute(CommandSender sender, String[] args) {
         try {
             String messageType;
+            String receiverPlayerId;
 
             if (args.length > 2 && isPositiveInteger(args[2])) {
                 if (isValidAccountId(args[0]) && isValidAccountId(args[1])) {
                     // bf pay accountId accountId amount reason | messageType: account_account
                     transactionManager.createTransaction(args[0], args[1], Integer.valueOf(args[2]), concatenateArgs(args, 3));
                     messageType = "account_account";
+                    receiverPlayerId = new Account(args[1]).getOwnerId();
 
                     placeholders.put("%sender%", args[0]);
                     placeholders.put("%receiver%", args[1]);
@@ -47,6 +51,7 @@ public class PayCommand implements Command {
 
                     transactionManager.createTransaction(args[0], destinationUser.getPersonalAccountId(), Integer.valueOf(args[2]), concatenateArgs(args, 3));
                     messageType = "account_username";
+                    receiverPlayerId = destinationUser.getUserId();
 
                     placeholders.put("%sender%", args[0]);
                     placeholders.put("%receiver%", destinationUser.getUsername());
@@ -63,6 +68,7 @@ public class PayCommand implements Command {
 
                     transactionManager.createTransaction(senderUser.getPersonalAccountId(), args[0], Integer.valueOf(args[1]), concatenateArgs(args, 2));
                     messageType = "account";
+                    receiverPlayerId = new Account(args[0]).getOwnerId();
 
                     placeholders.put("%sender%", senderUser.getUsername());
                     placeholders.put("%receiver%", args[0]);
@@ -73,6 +79,7 @@ public class PayCommand implements Command {
                     
                     transactionManager.createTransaction(senderUser.getPersonalAccountId(), destinationUser.getPersonalAccountId(), Integer.valueOf(args[1]), concatenateArgs(args, 2));
                     messageType = "username";
+                    receiverPlayerId = destinationUser.getUserId();
 
                     placeholders.put("%sender%", senderUser.getUsername());
                     placeholders.put("%receiver%", destinationUser.getUsername());
@@ -92,6 +99,13 @@ public class PayCommand implements Command {
 
             Component component = mm.deserialize(parsedMessage);
             sender.sendMessage(component);
+
+            // Send message to receiver
+
+            initialMessage = Messages.getString("pay_received." + messageType);
+            parsedMessage = parsePlaceholders(initialMessage, placeholders);
+            
+            new Notification(receiverPlayerId, parsedMessage, true);
         } catch (Exception e) {
             Component component = mm.deserialize(Messages.getString("command_failed") + "<newline>| " + e.getMessage());
             sender.sendMessage(component);

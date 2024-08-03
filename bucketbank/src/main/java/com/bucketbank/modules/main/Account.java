@@ -8,12 +8,7 @@ import java.util.logging.Logger;
 
 import com.bucketbank.App;
 import com.bucketbank.database.AccountsDatabase;
-import com.bucketbank.modules.DatabaseManager;
-
-// data.put("uuid", getOwner(accountId));
-// data.put("balance", getBalance(accountId));
-// data.put("suspended", getSuspendedStatus(accountId));
-// data.put("deleted", isDeleted(accountId));
+import com.bucketbank.modules.managers.DatabaseManager;
 
 public class Account {
     private static final App plugin = App.getPlugin();
@@ -27,6 +22,15 @@ public class Account {
     private int balance;
     private boolean suspended;
     private boolean deleted;
+    private int creditLimit;
+    private int creditPercent;
+    private long accountCreatedTimestamp;
+    private long lastInterestCalculation;
+
+    // data.put("creditLimit", getCreditLimit(accountId));
+    // data.put("creditPercent", getCreditPercent(accountId));
+    // data.put("accountCreatedTimestamp", getAccountCreatedTimestamp(accountId));
+    // data.put("lastInterestCalculation", getLastInterestCalculation(accountId));
 
     // constructor (load from database)
     public Account(String newAccountId) {
@@ -35,10 +39,14 @@ public class Account {
 
             this.accountId = newAccountId;
             this.ownerId = (String) accountData.get("uuid");
-            this.balance = (Integer) accountData.get("balance");
+            this.balance = (int) accountData.get("balance");
             this.displayName = (String) accountData.get("displayName");
-            this.suspended = (Boolean) accountData.get("suspended");
-            this.deleted = (Boolean) accountData.get("deleted");
+            this.suspended = (boolean) accountData.get("suspended");
+            this.creditLimit = (int) accountData.get("creditLimit");
+            this.creditPercent = (int) accountData.get("creditPercent");
+            this.accountCreatedTimestamp = (long) accountData.get("accountCreatedTimestamp");
+            this.lastInterestCalculation = (long) accountData.get("lastInterestCalculation");
+            this.deleted = (boolean) accountData.get("deleted");
         } catch (SQLException e) {
             logger.severe("Failed to load account " + this.accountId);;
             e.printStackTrace();
@@ -47,14 +55,22 @@ public class Account {
     }
 
     // constructor (create new)
-    public Account(String userId, boolean createNewAccount) {
+    public Account(String userId, boolean createNewAccount, int creditLimit, int creditPercent) {
         try {
             this.accountId = accountsDatabase.createAccount(userId);
+
+            accountsDatabase.updateLastInterestCalculation(this.accountId);
+            accountsDatabase.setCreditPercent(this.accountId, creditPercent);
+            accountsDatabase.setCreditLimit(this.accountId, creditLimit);
 
             this.ownerId = userId;
             this.balance = accountsDatabase.getBalance(this.accountId);
             this.displayName = accountsDatabase.getDisplayName(this.accountId);
             this.suspended = accountsDatabase.getSuspendedStatus(this.accountId);
+            this.creditLimit = creditLimit;
+            this.creditPercent = creditPercent;
+            this.accountCreatedTimestamp = accountsDatabase.getAccountCreatedTimestamp(this.accountId);
+            this.lastInterestCalculation = accountsDatabase.getLastInterestCalculation(this.accountId);
             this.deleted = accountsDatabase.isDeleted(this.accountId);
         } catch (SQLException e) {
             logger.severe("Failed to create account " + this.accountId);;
@@ -88,11 +104,11 @@ public class Account {
         }
     }
 
-    public Integer getBalance() {
+    public int getBalance() {
         try {
             return accountsDatabase.getBalance(this.accountId);
         } catch (SQLException e) {
-            return (Integer) 0;
+            return (int) 0;
         }
     }
 
@@ -127,9 +143,60 @@ public class Account {
         }
     }
 
-    // setters
+    public int getCreditLimit() {
+        try {
+            return accountsDatabase.getCreditLimit(this.accountId);
+        } catch (SQLException e) {
+            logger.severe("Failed to get credit limit of account: " + this.accountId);;
+            e.printStackTrace();
+            return 0;
+        }
+    }
 
-    public void modifyBalance(Integer amount) throws Exception {
+    public int getCreditPercent() {
+        try {
+            return accountsDatabase.getCreditPercent(this.accountId);
+        } catch (SQLException e) {
+            logger.severe("Failed to get credit percent of account: " + this.accountId);;
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    public long getTimeSinceLastInterestCalculation() {
+        try {
+            return accountsDatabase.getLastInterestCalculation(this.accountId);
+        } catch (SQLException e) {
+            logger.severe("Failed to get time since interest calculations for account: " + this.accountId);;
+            e.printStackTrace();
+            return 0;
+        }
+    }
+    
+    public long getAccountCreatedTimestamp() {
+        return this.accountCreatedTimestamp;
+    }
+
+    public void setCreditLimit(int creditLimit) {
+        try {
+            accountsDatabase.setCreditLimit(this.accountId, creditLimit);
+        } catch (SQLException e) {
+            logger.severe("Failed to set credit limit for account: " + this.accountId);;
+            e.printStackTrace();
+        }
+    }
+
+    public void setCreditPercent(int creditPercent) {
+        try {
+            accountsDatabase.setCreditPercent(this.accountId, creditPercent);
+        } catch (SQLException e) {
+            logger.severe("Failed to set credit limit for account: " + this.accountId);;
+            e.printStackTrace();
+        }
+    }
+
+    // setters
+    public void modifyBalance(int amount) throws Exception {
         try {
             // Checks
             if (isSuspended()) {
@@ -138,11 +205,6 @@ public class Account {
 
             if (isDeleted()) {
                 throw new Exception("Account is deleted, cannot modify balance!");
-            }
-
-            // logger.info(String.valueOf(getBalance()));
-            if (getBalance() + amount < 0) {
-                throw new Exception("Insufficient funds. Cannot modify balance.");
             }
 
             // Update balance
@@ -154,7 +216,7 @@ public class Account {
         }
     }
 
-    public void setBalance(Integer balance) throws Exception {
+    public void setBalance(int balance) throws Exception {
         try {
             // Checks
             if (isDeleted()) {

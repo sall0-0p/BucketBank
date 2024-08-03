@@ -1,4 +1,4 @@
-package com.bucketbank.modules;
+package com.bucketbank.modules.managers;
 
 import com.bucketbank.App;
 import com.bucketbank.database.TransactionsDatabase;
@@ -21,7 +21,7 @@ public class TransactionManager {
         Account sourceAccount = new Account(sourceAccountId);
         Account destinationAccount = new Account(destinationAccountId);
 
-        if (sourceAccount.getBalance() - amount < 0) {
+        if (sourceAccount.getBalance() + sourceAccount.getCreditLimit() - amount < 0) {
             throw new Exception("Sender has insufficient funds!");
         }
 

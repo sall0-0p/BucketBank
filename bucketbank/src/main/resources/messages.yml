@@ -18,6 +18,12 @@ pay.account: "<color:#66AC7E>| You have sent <gold>%amount%$ <color:#66AC7E>еo 
 pay.username: "<color:#66AC7E>| You have sent <gold>%amount%$ <color:#66AC7E>to user <white>%receiver% <color:#66AC7E>from your personal account!"
 pay.account_account: "<color:#66AC7E>| You have sent <gold>%amount%$ <color:#66AC7E>to account <white>%receiver% <color:#66AC7E>from account <white>%sender%<color:#66AC7E>!"
 pay.account_username: "<color:#66AC7E>| You have sent <gold>%amount%$ <color:#66AC7E>to user <white>%receiver% <color:#66AC7E>from account <white>%sender%<color:#66AC7E>! "
+
+pay_received.account: "<color:#66AC7E>| You have received <gold>%amount%$ <color:#66AC7E>to account <white>%receiver% <color:#66AC7E>from <white>%sender%<color:#66AC7E>!"
+pay_received.username: "<color:#66AC7E>| You have received <gold>%amount%$ <color:#66AC7E>to your personal account from <white>%sender%<color:#66AC7E>!"
+pay_received.account_account: "<color:#66AC7E>| You have received <gold>%amount%$ <color:#66AC7E>to account <white>%receiver% <color:#66AC7E>from account <white>%sender%<color:#66AC7E>!"
+pay_received.account_username: "<color:#66AC7E>| You have received <gold>%amount%$ <color:#66AC7E>to your personal account from account <white>%sender%<color:#66AC7E>! "
+
 pay.default_note: ""
 
 # user
@@ -75,6 +81,8 @@ account:
   set_balance: "<color:#66AC7E>| Balance of <reset>%owner% <color:#66AC7E>is set to <gold>%balance%$<color:#66AC7E>."
   suspended: "<color:#66AC7E>| Account <reset>%accountId% <color:#66AC7E>was suspended!"
   reinstated: "<color:#66AC7E>| Account <reset>%accountId% <color:#66AC7E>is no longer suspended!"
+  credit_changed: "<color:#66AC7E>| Account <reset>%accountId% <color:#66AC7E>has now credit limit of <white>%credit_limit% <color:#66AC7E>and interest of <white>%credit_percent%%<color:#66AC7E> per week."
+  credit_viewed: "<color:#DB6D53>| Account <reset>%accountId% <color:#DB6D53>has credit limit of <white>%credit_limit% <color:#DB6D53>and interest of <white>%credit_percent%%<color:#DB6D53> per week."
   status:
     suspended: "<red>[Suspended]<reset>"
     not_suspended: "<color:#66AC7E>[Operational]<reset>"
@@ -82,6 +90,9 @@ account:
 
   added_user: "<color:#66AC7E>| Successfully added <white>%username% <color:#66AC7E>to account <white>%accountId%<color:#66AC7E>."
   removed_user: "<color:#66AC7E>| Successfully removed <white>%username% <color:#66AC7E>from account <white>%accountId%<color:#66AC7E>."
+  list_users:
+    header: "<color:#DB6D53>| Users with access to account:"
+    item: "<color:#DB6D53>| <reset>%user%"
 
 # lists
 lists:
@@ -156,3 +167,50 @@ lists:
 
 # errors
 command_failed: "<red>| Failed to execute command, check console for errors."
+
+atm:
+  main_page: |-
+    <color:#66AC7E>| ----------------------------------------
+    <color:#66AC7E>| ATM | <reset>Main Menu
+    <color:#66AC7E>| ----------------------------------------
+    <color:#66AC7E>| <click:run_command:/bf atmm page balance_page %accountId%>■<reset> Balance
+    <color:#66AC7E>| <click:run_command:/bf atmm page withdraw_page %accountId%>■<reset> Withdraw
+    <color:#66AC7E>| <click:run_command:/bf atmm page deposit_page %accountId%>■<reset> Deposit
+    <color:#66AC7E>| <click:run_command:/bf atmm page exchange_page %accountId%>■<reset> Exchange
+    <color:#66AC7E>| ----------------------------------------
+  deposit_page: |-
+    <color:#66AC7E>| ----------------------------------------
+    <color:#66AC7E>| ATM | <reset>Deposit
+    <color:#66AC7E>| ----------------------------------------
+    <color:#66AC7E>| ■ 32
+    <color:#66AC7E>| ■ 64
+    <color:#66AC7E>| ■ Custom amount
+    <color:#66AC7E>| <click:run_command:/bf atm %accountId%>■<reset> Back
+    <color:#66AC7E>| ----------------------------------------
+  withdraw_page: |-
+    <color:#66AC7E>| ----------------------------------------
+    <color:#66AC7E>| ATM | <reset>Withdraw
+    <color:#66AC7E>| ----------------------------------------
+    <color:#66AC7E>| ■ 32
+    <color:#66AC7E>| ■ 64
+    <color:#66AC7E>| ■ Custom amount
+    <color:#66AC7E>| <click:run_command:/bf atm %accountId%>■<reset> Back
+    <color:#66AC7E>| ----------------------------------------
+  exchange_page: |-
+    <color:#66AC7E>| ----------------------------------------
+    <color:#66AC7E>| ATM | <reset>Exchange
+    <color:#66AC7E>| ----------------------------------------
+    <color:#66AC7E>| ■ <reset>Diamonds <gold>-> <reset>Currency
+    <color:#66AC7E>| ■ <reset>Currency <gold>-> <reset>Diamonds
+    <color:#66AC7E>| ■ 
+    <color:#66AC7E>| <click:run_command:/bf atm %accountId%>■<reset> Back
+    <color:#66AC7E>| ----------------------------------------
+  balance_page: |-
+    <color:#66AC7E>| ----------------------------------------
+    <color:#66AC7E>| ATM | <reset>Balance
+    <color:#66AC7E>| ----------------------------------------
+    <color:#66AC7E>| ■ Your balance is:
+    <color:#66AC7E>| ■ %balance%$
+    <color:#66AC7E>| ■ 
+    <color:#66AC7E>| ■ Back
+    <color:#66AC7E>| ----------------------------------------

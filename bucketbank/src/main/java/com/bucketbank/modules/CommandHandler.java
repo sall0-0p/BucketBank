@@ -8,17 +8,27 @@ import org.bukkit.command.CommandSender;
 
 import com.bucketbank.App;
 import com.bucketbank.commands.bucketfinance.AboutCommand;
+import com.bucketbank.commands.bucketfinance.AccountsAliasCommand;
 import com.bucketbank.commands.bucketfinance.BalanceCommand;
+import com.bucketbank.commands.bucketfinance.HistoryAliasCommand;
 import com.bucketbank.commands.bucketfinance.PayCommand;
 import com.bucketbank.commands.bucketfinance.ReloadConfig;
 import com.bucketbank.commands.bucketfinance.account.CreateAccountCommand;
+import com.bucketbank.commands.bucketfinance.account.CreditCommand;
 import com.bucketbank.commands.bucketfinance.account.GiveAccess;
 import com.bucketbank.commands.bucketfinance.account.HistoryCommand;
+import com.bucketbank.commands.bucketfinance.account.ListUsers;
 import com.bucketbank.commands.bucketfinance.account.ReinstateAccountCommand;
 import com.bucketbank.commands.bucketfinance.account.RemoveAccess;
 import com.bucketbank.commands.bucketfinance.account.SuspendAccountCommand;
 import com.bucketbank.commands.bucketfinance.account.balance.GetBalanceCommand;
 import com.bucketbank.commands.bucketfinance.account.balance.SetBalanceCommand;
+import com.bucketbank.commands.bucketfinance.atm.AtmCommand;
+import com.bucketbank.commands.bucketfinance.atm.DepositCommand;
+import com.bucketbank.commands.bucketfinance.atm.ExchangeCurrencyCommand;
+import com.bucketbank.commands.bucketfinance.atm.ExchangeDiamondsCommand;
+import com.bucketbank.commands.bucketfinance.atm.PageCommand;
+import com.bucketbank.commands.bucketfinance.atm.WithdrawCommand;
 import com.bucketbank.commands.bucketfinance.user.AboutUserCommand;
 import com.bucketbank.commands.bucketfinance.user.AccountsCommand;
 import com.bucketbank.commands.bucketfinance.user.CreateUserCommand;
@@ -37,6 +47,8 @@ public class CommandHandler implements CommandExecutor {
         commands.put("reload", new ReloadConfig());
         commands.put("balance", new BalanceCommand());
         commands.put("pay", new PayCommand());
+        commands.put("history", new HistoryAliasCommand());
+        commands.put("accounts", new AccountsAliasCommand());
 
         // user
         commands.put("user about", new AboutUserCommand());
@@ -54,8 +66,18 @@ public class CommandHandler implements CommandExecutor {
         commands.put("account history", new HistoryCommand());
         commands.put("account user add", new GiveAccess());
         commands.put("account user remove", new RemoveAccess());
+        commands.put("account user list", new ListUsers());
         commands.put("account suspend", new SuspendAccountCommand());
         commands.put("account reinstate", new ReinstateAccountCommand());
+        commands.put("account credit", new CreditCommand());
+
+        // atm
+        commands.put("atm", new AtmCommand());
+        commands.put("atmm page", new PageCommand());
+        commands.put("atmm deposit", new DepositCommand());
+        commands.put("atmm withdraw", new WithdrawCommand());
+        commands.put("atmm exchange diamonds", new ExchangeDiamondsCommand());
+        commands.put("atmm exchange currency", new ExchangeCurrencyCommand());
     }
 
     @Override

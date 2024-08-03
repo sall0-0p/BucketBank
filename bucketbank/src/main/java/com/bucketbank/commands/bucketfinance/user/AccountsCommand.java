@@ -35,8 +35,8 @@ public class AccountsCommand implements Command {
             Map<String, String> placeholders = new HashMap<>();
 
             // define pages
-            Integer pageCount = (int) Math.ceil(accounts.size() / 3) + 1;
-            Integer currentPage;
+            int pageCount = (int) Math.ceil(accounts.size() / 3) + 1;
+            int currentPage;
             
             if (args.length == 1) {
                 currentPage = 1;
@@ -95,9 +95,9 @@ public class AccountsCommand implements Command {
     }
     
     private List<String> getAccountsFromPage(List<String> accounts, Integer page) {
-        Integer itemsPerPage = 3;
-        Integer fromIndex = (page - 1) * itemsPerPage;
-        Integer toIndex = Math.min(fromIndex + itemsPerPage, accounts.size());
+        int itemsPerPage = 3;
+        int fromIndex = (page - 1) * itemsPerPage;
+        int toIndex = Math.min(fromIndex + itemsPerPage, accounts.size());
 
         if (fromIndex >= accounts.size() || fromIndex < 0) {
             return new ArrayList<>(); // Return an empty list if the page number is out of bounds

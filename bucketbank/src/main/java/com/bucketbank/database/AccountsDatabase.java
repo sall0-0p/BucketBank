@@ -25,6 +25,10 @@ public class AccountsDatabase {
                 "ownerId TEXT NOT NULL, " +
                 "balance INTEGER NOT NULL DEFAULT 0, " +
                 "suspended BOOL DEFAULT 0, " +
+                "creditLimit INTEGER DEFAULT 0, " +
+                "creditPercent INTEGER DEFAULT 0, " +
+                "accountCreatedTimestamp BIGINT NOT NULL, " +
+                "lastInterestCalculation BIGINT, " +
                 "deleted BOOL DEFAULT 0" +
                 ")");
         }
@@ -47,9 +51,10 @@ public class AccountsDatabase {
     // constructor
     public String createAccount(String accountOwnerId) throws SQLException {
         String accountId = generateAccountId();
-        try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO accounts (accountId, ownerId) VALUES (?, ?)")) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO accounts (accountId, ownerId, accountCreatedTimestamp) VALUES (?, ?, ?)")) {
             preparedStatement.setString(1, accountId);
             preparedStatement.setString(2, accountOwnerId);
+            preparedStatement.setLong(3, System.currentTimeMillis() / 1000L);
             preparedStatement.executeUpdate();
 
             // adding user to people with access
@@ -121,6 +126,34 @@ public class AccountsDatabase {
                 preparedStatement.setString(2, accountId);
                 preparedStatement.executeUpdate();
             }
+        }
+    }
+
+    public void setCreditLimit(String accountId, int creditLimit) throws SQLException {
+        String query = "UPDATE accounts SET creditLimit = ? WHERE accountId = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, creditLimit);
+            statement.setString(2, accountId);
+            statement.executeUpdate();
+        }
+    }
+
+    public void setCreditPercent(String accountId, int creditPercent) throws SQLException {
+        String query = "UPDATE accounts SET creditPercent = ? WHERE accountId = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, creditPercent);
+            statement.setString(2, accountId);
+            statement.executeUpdate();
+        }
+    }
+
+    public void updateLastInterestCalculation(String accountId) throws SQLException {
+        long currentTimestamp = System.currentTimeMillis() / 1000L; // Current epoch timestamp in seconds
+        String query = "UPDATE accounts SET lastInterestCalculation = ? WHERE accountId = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setLong(1, currentTimestamp);
+            statement.setString(2, accountId);
+            statement.executeUpdate();
         }
     }
 
@@ -210,16 +243,86 @@ public class AccountsDatabase {
         }
     }
 
-    // get all
+    public int getCreditLimit(String accountId) throws SQLException {
+        String query = "SELECT creditLimit FROM accounts WHERE accountId = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, accountId);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt("creditLimit");
+            } else {
+                throw new SQLException("Account not found");
+            }
+        }
+    }
+
+    public int getCreditPercent(String accountId) throws SQLException {
+        String query = "SELECT creditPercent FROM accounts WHERE accountId = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, accountId);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt("creditPercent");
+            } else {
+                throw new SQLException("Account not found");
+            }
+        }
+    }
+
+    public long getAccountCreatedTimestamp(String accountId) throws SQLException {
+        String query = "SELECT accountCreatedTimestamp FROM accounts WHERE accountId = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, accountId);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getLong("accountCreatedTimestamp");
+            } else {
+                throw new SQLException("Account not found");
+            }
+        }
+    }
+
+    public long getLastInterestCalculation(String accountId) throws SQLException {
+        String query = "SELECT lastInterestCalculation FROM accounts WHERE accountId = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, accountId);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getLong("lastInterestCalculation");
+            } else {
+                throw new SQLException("Account not found");
+            }
+        }
+    }
+
+    // get all method
     public Map<String, Object> getData(String accountId) throws SQLException {
         Map<String, Object> data = new HashMap<>();
-
+    
         data.put("uuid", getOwner(accountId));
         data.put("displayName", getDisplayName(accountId));
         data.put("balance", getBalance(accountId));
         data.put("suspended", getSuspendedStatus(accountId));
         data.put("deleted", isDeleted(accountId));
+        data.put("creditLimit", getCreditLimit(accountId));
+        data.put("creditPercent", getCreditPercent(accountId));
+        data.put("accountCreatedTimestamp", getAccountCreatedTimestamp(accountId));
+        data.put("lastInterestCalculation", getLastInterestCalculation(accountId));
+    
         return data;
+    }
+
+    public List<String> getAllAccounts() throws SQLException {
+        String sql = "SELECT accountId FROM accounts";
+        List<String> result = new ArrayList<>();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    result.add(resultSet.getString("accountId"));
+                }
+            }
+        }
+        return result;
     }
 
     // access management

@@ -57,11 +57,17 @@ public class BalanceCommand implements Command {
                 }
             }
 
+            String balanceString = String.valueOf(account.getBalance());
+
+            if (account.getBalance() < 0) {
+                balanceString = "<red><bold>" + balanceString + "<reset>";
+            }
+
             // Setup placeholders
             placeholders.put("%owner%", new User(account.getOwnerId()).getUsername());
             placeholders.put("%ownerId%", account.getAccountId());
             placeholders.put("%accountId%", account.getAccountId());
-            placeholders.put("%balance%", String.valueOf(account.getBalance()));
+            placeholders.put("%balance%", balanceString);
 
             // Print message
             String initialMessage = Messages.getString("account." + messageType);

@@ -13,7 +13,7 @@ import org.bukkit.OfflinePlayer;
 import com.bucketbank.App;
 import com.bucketbank.database.AccountsDatabase;
 import com.bucketbank.database.UsersDatabase;
-import com.bucketbank.modules.DatabaseManager;
+import com.bucketbank.modules.managers.DatabaseManager;
 
 public class User {
     private static final App plugin = App.getPlugin();
@@ -43,8 +43,8 @@ public class User {
             profileCreatedTimestamp = (long) userData.get("profileCreatedTimestamp");
             personalAccountId = (String) userData.get("personalAccountId");
             suspended = (Boolean) userData.get("suspended");
-            debt = (Integer) userData.get("debt");
-            accountLimit = (Integer) userData.get("accountLimit");
+            debt = (int) userData.get("debt");
+            accountLimit = (int) userData.get("accountLimit");
             deleted = (Boolean) userData.get("deleted");
 
         } catch (SQLException e) {
@@ -66,8 +66,8 @@ public class User {
             this.profileCreatedTimestamp = (long) userData.get("profileCreatedTimestamp");
             this.personalAccountId = (String) userData.get("personalAccountId");
             this.suspended = (Boolean) userData.get("suspended");
-            this.debt = (Integer) userData.get("debt");
-            this.accountLimit = (Integer) userData.get("accountLimit");
+            this.debt = (int) userData.get("debt");
+            this.accountLimit = (int) userData.get("accountLimit");
             this.deleted = (Boolean) userData.get("deleted");
 
         } catch (SQLException e) {
@@ -77,7 +77,7 @@ public class User {
     }
     
     // constructor (create new user from id)
-    public User(OfflinePlayer player, boolean createNewUser) throws Exception {
+    public User(OfflinePlayer player, boolean createNewUser, int creditLimit, int creditPercent) throws Exception {
         String userId = player.getUniqueId().toString();
         String username = player.getName();
 
@@ -95,7 +95,7 @@ public class User {
                 this.deleted = usersDatabase.isDeleted(userId);
 
                 // create personal account for user
-                Account personalAccount = new Account(userId, true);
+                Account personalAccount = new Account(userId, true, creditLimit, creditPercent);
                 personalAccount.setDisplayName(this.username);
 
                 personalAccountId = personalAccount.getAccountId();
@@ -166,7 +166,7 @@ public class User {
         // later
     }
 
-    public Integer getAccountLimit() {
+    public int getAccountLimit() {
         try {
             return usersDatabase.getAccountLimit(userId);
         } catch (SQLException e) {
@@ -245,7 +245,7 @@ public class User {
         }
     }
 
-    public void setAccountLimit(Integer newLimit) {
+    public void setAccountLimit(int newLimit) {
         try {
             usersDatabase.setAccountLimit(userId, newLimit);
         } catch (SQLException e) {

@@ -1,22 +1,19 @@
-package com.bucketbank.commands.bucketfinance.user;
+package com.bucketbank.commands.bucketfinance.account;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 
 import com.bucketbank.App;
 import com.bucketbank.modules.Command;
 import com.bucketbank.modules.Messages;
-import com.bucketbank.modules.main.User;
+import com.bucketbank.modules.main.Account;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
-public class CreateUserCommand implements Command {
+public class CreditCommand implements Command {
     private static final App plugin = App.getPlugin();
     private static final MiniMessage mm = MiniMessage.miniMessage();
 
@@ -25,24 +22,32 @@ public class CreateUserCommand implements Command {
     @Override
     public void execute(CommandSender sender, String[] args) {
         try {
-            OfflinePlayer player = Bukkit.getOfflinePlayer(args[0]);
-            UUID userId = player.getUniqueId();
-            String username = player.getName();
+            Account account = new Account(args[0]);
 
-            int creditLimit = 0;
-            int creditPercent = 0;
+            int creditLimit;
+            int creditPercent;
+            String messageType;
             if (args.length > 2) {
                 creditLimit = Integer.valueOf(args[1]);
                 creditPercent = Integer.valueOf(args[2]);
+                account.setCreditLimit(creditLimit);
+                account.setCreditPercent(creditPercent);
+
+                messageType = "credit_changed";
+            } else {
+                creditLimit = account.getCreditLimit();
+                creditPercent = account.getCreditPercent();
+
+                messageType = "credit_viewed";
             }
-            User user = new User(player, true, creditLimit, creditPercent);
 
             // Setup placeholders
-            placeholders.put("%user%", username);
-            placeholders.put("%userId%", userId.toString());
+            placeholders.put("%accountId%", account.getAccountId());
+            placeholders.put("%credit_limit%", String.valueOf(creditLimit));
+            placeholders.put("%credit_percent%", String.valueOf(creditPercent));
 
             // Print message
-            String initialMessage = Messages.getString("user.created");
+            String initialMessage = Messages.getString("account." + messageType);
             String parsedMessage = parsePlaceholders(initialMessage, placeholders);
 
             Component component = mm.deserialize(parsedMessage);

@@ -14,11 +14,11 @@ import org.bukkit.command.CommandSender;
 import com.bucketbank.App;
 import com.bucketbank.database.TransactionsDatabase;
 import com.bucketbank.modules.Command;
-import com.bucketbank.modules.DatabaseManager;
 import com.bucketbank.modules.Messages;
 import com.bucketbank.modules.main.Account;
 import com.bucketbank.modules.main.Transaction;
 import com.bucketbank.modules.main.User;
+import com.bucketbank.modules.managers.DatabaseManager;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -37,8 +37,8 @@ public class HistoryCommand implements Command {
             Map<String, String> placeholders = new HashMap<>();
 
             // define pages
-            Integer pageCount = (int) Math.ceil(transactions.size() / 5) + 1;
-            Integer currentPage;
+            int pageCount = (int) Math.ceil(transactions.size() / 5) + 1;
+            int currentPage;
             
             if (args.length == 1) {
                 currentPage = 1;
@@ -120,10 +120,10 @@ public class HistoryCommand implements Command {
         return parsePlaceholders(initialBody, placeholders);
     }
     
-    private List<Transaction> getTransactionsFromPage(List<Transaction> transactions, Integer page) {
-        Integer itemsPerPage = 5;
-        Integer fromIndex = (page - 1) * itemsPerPage;
-        Integer toIndex = Math.min(fromIndex + itemsPerPage, transactions.size());
+    private List<Transaction> getTransactionsFromPage(List<Transaction> transactions, int page) {
+        int itemsPerPage = 5;
+        int fromIndex = (page - 1) * itemsPerPage;
+        int toIndex = Math.min(fromIndex + itemsPerPage, transactions.size());
 
         if (fromIndex >= transactions.size() || fromIndex < 0) {
             return new ArrayList<>(); // Return an empty list if the page number is out of bounds

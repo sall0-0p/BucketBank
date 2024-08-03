@@ -1,4 +1,4 @@
-package com.bucketbank.modules;
+package com.bucketbank.modules.managers;
 
 import java.sql.SQLException;
 import java.util.logging.Logger;
@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 
 import com.bucketbank.App;
 import com.bucketbank.database.AccountsDatabase;
+import com.bucketbank.database.NotificationsDatabase;
 import com.bucketbank.database.TransactionsDatabase;
 import com.bucketbank.database.UsersDatabase;
 
@@ -18,6 +19,7 @@ public class DatabaseManager {
     private AccountsDatabase accountsDatabase;
     private UsersDatabase usersDatabase;
     private TransactionsDatabase transactionsDatabase;
+    private NotificationsDatabase notificationsDatabase;
 
     // Initialisation (constructor)
     public DatabaseManager() {
@@ -30,6 +32,7 @@ public class DatabaseManager {
             accountsDatabase = new AccountsDatabase(plugin.getDataFolder().getAbsolutePath() + "/database.db");
             usersDatabase = new UsersDatabase(plugin.getDataFolder().getAbsolutePath() + "/database.db");
             transactionsDatabase = new TransactionsDatabase(plugin.getDataFolder().getAbsolutePath() + "/database.db");
+            notificationsDatabase = new NotificationsDatabase(plugin.getDataFolder().getAbsolutePath() + "/database.db");
     
         } catch (SQLException e) {
             e.printStackTrace();
@@ -51,12 +54,17 @@ public class DatabaseManager {
         return transactionsDatabase;
     }
 
+    public NotificationsDatabase getNotificationsDatabase() {
+        return notificationsDatabase;
+    }
+
     // Close connections
     public void closeConnections() {
         try {
             accountsDatabase.closeConnection();
             usersDatabase.closeConnection();
             transactionsDatabase.closeConnection();
+            notificationsDatabase.closeConnection();
         } catch (SQLException e) {
             e.printStackTrace();
         }
