@@ -25,7 +25,11 @@ public class GetBalanceCommand implements Command {
     public void execute(CommandSender sender, String[] args) {
         try {
             if (args.length == 0) {
-                throw new Exception("accountId or username has to be provided!");
+                throw new Exception("Account Id or Username has to be provided!");
+            }
+
+            if (!sender.hasPermission("bucketfinance.account.balance")) {
+                throw new Exception("You have no permission to use this command!");
             }
 
             Account account;
@@ -61,9 +65,8 @@ public class GetBalanceCommand implements Command {
             Component component = mm.deserialize(parsedMessage);
             sender.sendMessage(component);
         } catch (Exception e) {
-            Component component = mm.deserialize(Messages.getString("command_failed") + "<newline>| " + e.getMessage());
+            Component component = mm.deserialize("<red>| " + e.getMessage());
             sender.sendMessage(component);
-            e.printStackTrace();
         }
     }
 

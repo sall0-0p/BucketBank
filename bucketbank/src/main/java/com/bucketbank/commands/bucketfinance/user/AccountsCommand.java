@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import com.bucketbank.App;
 import com.bucketbank.modules.Command;
@@ -26,6 +27,10 @@ public class AccountsCommand implements Command {
     @Override
     public void execute(CommandSender sender, String[] args) {
         try {
+            if (!sender.hasPermission("bucketfinance.user.accounts")) {
+                throw new Exception("You have no permission to use this command!");
+            }
+
             OfflinePlayer player = Bukkit.getOfflinePlayer(args[0]);
             UUID userId = player.getUniqueId();
             String username = player.getName();
@@ -94,7 +99,7 @@ public class AccountsCommand implements Command {
         return parsePlaceholders(initialBody, placeholders);
     }
     
-    private List<String> getAccountsFromPage(List<String> accounts, Integer page) {
+    private List<String> getAccountsFromPage(List<String> accounts, int page) {
         int itemsPerPage = 3;
         int fromIndex = (page - 1) * itemsPerPage;
         int toIndex = Math.min(fromIndex + itemsPerPage, accounts.size());

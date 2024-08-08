@@ -19,11 +19,11 @@ public class Account {
     private String accountId;
     private String ownerId;
     private String displayName;
-    private int balance;
+    private float balance;
     private boolean suspended;
     private boolean deleted;
-    private int creditLimit;
-    private int creditPercent;
+    private float creditLimit;
+    private float creditPercent;
     private long accountCreatedTimestamp;
     private long lastInterestCalculation;
 
@@ -39,11 +39,11 @@ public class Account {
 
             this.accountId = newAccountId;
             this.ownerId = (String) accountData.get("uuid");
-            this.balance = (int) accountData.get("balance");
+            this.balance = (float) accountData.get("balance");
             this.displayName = (String) accountData.get("displayName");
             this.suspended = (boolean) accountData.get("suspended");
-            this.creditLimit = (int) accountData.get("creditLimit");
-            this.creditPercent = (int) accountData.get("creditPercent");
+            this.creditLimit = (float) accountData.get("creditLimit");
+            this.creditPercent = (float) accountData.get("creditPercent");
             this.accountCreatedTimestamp = (long) accountData.get("accountCreatedTimestamp");
             this.lastInterestCalculation = (long) accountData.get("lastInterestCalculation");
             this.deleted = (boolean) accountData.get("deleted");
@@ -55,7 +55,7 @@ public class Account {
     }
 
     // constructor (create new)
-    public Account(String userId, boolean createNewAccount, int creditLimit, int creditPercent) {
+    public Account(String userId, boolean createNewAccount, float creditLimit, float creditPercent) {
         try {
             this.accountId = accountsDatabase.createAccount(userId);
 
@@ -104,11 +104,11 @@ public class Account {
         }
     }
 
-    public int getBalance() {
+    public float getBalance() {
         try {
             return accountsDatabase.getBalance(this.accountId);
         } catch (SQLException e) {
-            return (int) 0;
+            return (float) 0;
         }
     }
 
@@ -143,7 +143,7 @@ public class Account {
         }
     }
 
-    public int getCreditLimit() {
+    public float getCreditLimit() {
         try {
             return accountsDatabase.getCreditLimit(this.accountId);
         } catch (SQLException e) {
@@ -153,7 +153,7 @@ public class Account {
         }
     }
 
-    public int getCreditPercent() {
+    public float getCreditPercent() {
         try {
             return accountsDatabase.getCreditPercent(this.accountId);
         } catch (SQLException e) {
@@ -177,7 +177,7 @@ public class Account {
         return this.accountCreatedTimestamp;
     }
 
-    public void setCreditLimit(int creditLimit) {
+    public void setCreditLimit(float creditLimit) {
         try {
             accountsDatabase.setCreditLimit(this.accountId, creditLimit);
         } catch (SQLException e) {
@@ -186,7 +186,7 @@ public class Account {
         }
     }
 
-    public void setCreditPercent(int creditPercent) {
+    public void setCreditPercent(float creditPercent) {
         try {
             accountsDatabase.setCreditPercent(this.accountId, creditPercent);
         } catch (SQLException e) {
@@ -196,7 +196,7 @@ public class Account {
     }
 
     // setters
-    public void modifyBalance(int amount) throws Exception {
+    public void modifyBalance(float amount) throws Exception {
         try {
             // Checks
             if (isSuspended()) {
@@ -216,7 +216,7 @@ public class Account {
         }
     }
 
-    public void setBalance(int balance) throws Exception {
+    public void setBalance(float balance) throws Exception {
         try {
             // Checks
             if (isDeleted()) {

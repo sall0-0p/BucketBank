@@ -22,7 +22,7 @@ public class TransactionsDatabase {
             "transactionId TEXT PRIMARY KEY, " +
             "sourceAccountId TEXT NOT NULL, " +
             "destinationAccountId TEXT NOT NULL, " +
-            "amount INTEGER NOT NULL, " +
+            "amount FLOAT NOT NULL, " +
             "timestamp BIGINT NOT NULL, " +
             "description TINYTEXT" +
             ")");
@@ -36,7 +36,7 @@ public class TransactionsDatabase {
             preparedStatement.setString(1, uniqueId);
             preparedStatement.setString(2, transaction.getSourceAccountId());
             preparedStatement.setString(3, transaction.getDestinationAccountId());
-            preparedStatement.setInt(4, transaction.getAmount());
+            preparedStatement.setFloat(4, transaction.getAmount());
             preparedStatement.setLong(5, transaction.getTimestamp());
             preparedStatement.setString(6, transaction.getDescription());
             preparedStatement.executeUpdate();
@@ -53,7 +53,7 @@ public class TransactionsDatabase {
                 if (resultSet.next()) {
                     String sourceAccountId = resultSet.getString("sourceAccountId");
                     String destinationAccountId = resultSet.getString("destinationAccountId");
-                    int amount = resultSet.getInt("amount");
+                    float amount = resultSet.getFloat("amount");
                     long timestamp = resultSet.getLong("timestamp");
                     String description = resultSet.getString("description");
 
@@ -77,7 +77,7 @@ public class TransactionsDatabase {
                     String transactionId = resultSet.getString("transactionId");
                     String sourceAccountId = resultSet.getString("sourceAccountId");
                     String destinationAccountId = resultSet.getString("destinationAccountId");
-                    int amount = resultSet.getInt("amount");
+                    float amount = resultSet.getFloat("amount");
                     long timestamp = resultSet.getLong("timestamp");
                     String description = resultSet.getString("description");
                     transactions.add(new Transaction(transactionId, sourceAccountId, destinationAccountId, amount, timestamp, description));
@@ -98,7 +98,7 @@ public class TransactionsDatabase {
                     String transactionId = resultSet.getString("transactionId");
                     String sourceAccountId = resultSet.getString("sourceAccountId");
                     String destinationAccountId = resultSet.getString("destinationAccountId");
-                    int amount = resultSet.getInt("amount");
+                    float amount = resultSet.getFloat("amount");
                     long timestamp = resultSet.getLong("timestamp");
                     String description = resultSet.getString("description");
                     transactions.add(new Transaction(transactionId, sourceAccountId, destinationAccountId, amount, timestamp, description));
@@ -108,7 +108,7 @@ public class TransactionsDatabase {
         return transactions;
     }
 
-    public int getTotalInFlow(String accountId) throws SQLException {
+    public float getTotalInFlow(String accountId) throws SQLException {
         List<Transaction> transactions = new ArrayList<>();
         String query = "SELECT SUM(amount) AS totalInflow FROM transactions WHERE destinationAccountId = ?";
 
@@ -116,14 +116,14 @@ public class TransactionsDatabase {
             statement.setString(1, accountId);
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
-                    return resultSet.getInt("totalInflow");
+                    return resultSet.getFloat("totalInflow");
                 }
             }
         }
         return 0;
     }
 
-    public int getTotalOutFlow(String accountId) throws SQLException {
+    public float getTotalOutFlow(String accountId) throws SQLException {
         List<Transaction> transactions = new ArrayList<>();
         String query = "SELECT SUM(amount) AS totalInflow FROM transactions WHERE sourceAccountId = ?";
 
@@ -131,14 +131,14 @@ public class TransactionsDatabase {
             statement.setString(1, accountId);
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
-                    return resultSet.getInt("totalInflow");
+                    return resultSet.getFloat("totalInflow");
                 }
             }
         }
         return 0;
     }
 
-    public List<Transaction> getRecentTransactions(String accountId, int limit) throws SQLException {
+    public List<Transaction> getRecentTransactions(String accountId, float limit) throws SQLException {
         List<Transaction> transactions = new ArrayList<>();
         String query = "SELECT transactionId, sourceAccountId, destinationAccountId, amount, timestamp, description " +
                        "FROM transactions WHERE sourceAccountId = ? OR destinationAccountId = ? " +
@@ -146,13 +146,13 @@ public class TransactionsDatabase {
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, accountId);
             statement.setString(2, accountId);
-            statement.setInt(3, limit);
+            statement.setFloat(3, limit);
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
                     String transactionId = resultSet.getString("transactionId");
                     String sourceAccountId = resultSet.getString("sourceAccountId");
                     String destinationAccountId = resultSet.getString("destinationAccountId");
-                    int amount = resultSet.getInt("amount");
+                    float amount = resultSet.getFloat("amount");
                     long timestamp = resultSet.getLong("timestamp");
                     String description = resultSet.getString("description");
                     transactions.add(new Transaction(transactionId, sourceAccountId, destinationAccountId, amount, timestamp, description));
@@ -170,7 +170,7 @@ public class TransactionsDatabase {
 
     private String generateTransactionId() {
         double rawId = Math.floor((Math.random() * (9999 - 1000) + 1000));
-        String accountIdNumber = String.valueOf((int) rawId);
+        String accountIdNumber = String.valueOf((float) rawId);
 
         return accountIdNumber;
     };

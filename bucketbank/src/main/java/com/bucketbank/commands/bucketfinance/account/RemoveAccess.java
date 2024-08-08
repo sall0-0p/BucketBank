@@ -31,6 +31,10 @@ public class RemoveAccess implements Command {
                 throw new Exception("Sender must be player!");
             }
 
+            if (!sender.hasPermission("bucketfinance.account.user")) {
+                throw new Exception("You have no permission to use this command!");
+            }
+
             OfflinePlayer player = Bukkit.getOfflinePlayer(args[1]);
             UUID userId = player.getUniqueId();
             User requestedUser = new User(userId.toString());
@@ -42,9 +46,9 @@ public class RemoveAccess implements Command {
 
             Account account = new Account(args[0]);
 
-            if (!account.hasAccess(senderUser)) {
+            if (!account.hasAccess(senderUser) && !sender.hasPermission("bucketfinance.account.user.others")) {
                 throw new Exception("Sender has no access to account!");
-            } // TODO: add permission bypass
+            }
 
             if (requestedUser.equals(senderUser)) {
                 throw new Exception("You cannot remove yourself!");
@@ -63,9 +67,8 @@ public class RemoveAccess implements Command {
             Component component = mm.deserialize(parsedMessage);
             sender.sendMessage(component);
         } catch (Exception e) {
-            Component component = mm.deserialize(Messages.getString("command_failed") + "<newline>| " + e.getMessage());
+            Component component = mm.deserialize("<red>| " + e.getMessage());
             sender.sendMessage(component);
-            e.printStackTrace();
         }
     }
 

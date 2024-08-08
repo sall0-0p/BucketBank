@@ -30,6 +30,10 @@ public class CreateAccountCommand implements Command {
             UUID userId = player.getUniqueId();
             User requestedUser = new User(userId.toString());
 
+            if (!sender.hasPermission("bucketfinance.account.create")) {
+                throw new Exception("You have no permission to use this command!");
+            }
+
             if (requestedUser.isDeleted() || requestedUser.isSuspended()) {
                 throw new Exception("User is either deleted or suspended!");
             }
@@ -56,9 +60,8 @@ public class CreateAccountCommand implements Command {
             Component component = mm.deserialize(parsedMessage);
             sender.sendMessage(component);
         } catch (Exception e) {
-            Component component = mm.deserialize(Messages.getString("command_failed") + "<newline>| " + e.getMessage());
+            Component component = mm.deserialize("<red>| " + e.getMessage());
             sender.sendMessage(component);
-            e.printStackTrace();
         }
     }
 

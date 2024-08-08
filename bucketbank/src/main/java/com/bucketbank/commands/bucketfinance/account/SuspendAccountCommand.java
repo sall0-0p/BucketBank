@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import com.bucketbank.App;
 import com.bucketbank.modules.Command;
@@ -22,6 +23,14 @@ public class SuspendAccountCommand implements Command {
     @Override
     public void execute(CommandSender sender, String[] args) {
         try {
+            if (!(sender instanceof Player)) {
+                throw new Exception("Sender must be player!");
+            }
+
+            if (!sender.hasPermission("bucketfinance.account.suspend")) {
+                throw new Exception("You have no permission to use this command!");
+            }
+
             Account account = new Account(args[0]);
 
             account.suspend();
@@ -36,9 +45,8 @@ public class SuspendAccountCommand implements Command {
             Component component = mm.deserialize(parsedMessage);
             sender.sendMessage(component);
         } catch (Exception e) {
-            Component component = mm.deserialize(Messages.getString("command_failed") + "<newline>| " + e.getMessage());
+            Component component = mm.deserialize("<red>| " + e.getMessage());
             sender.sendMessage(component);
-            e.printStackTrace();
         }
     }
 

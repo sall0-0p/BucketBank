@@ -30,29 +30,30 @@ public class ListUsers implements Command {
                 throw new Exception("Sender must be player!");
             }
 
-            OfflinePlayer player = Bukkit.getOfflinePlayer(args[1]);
-            UUID userId = player.getUniqueId();
-            User requestedUser = new User(userId.toString());
-            User senderUser = new User(((Player) sender).getUniqueId().toString());
-
-            if (requestedUser.isDeleted() || requestedUser.isSuspended()) {
-                throw new Exception("User is either deleted or suspended!");
+            if (!sender.hasPermission("bucketfinance.account.user")) {
+                throw new Exception("You have no permission to use this command!");
             }
+
+            User senderUser = new User(((Player) sender).getUniqueId().toString());
 
             Account account = new Account(args[0]);
 
-            if (!account.hasAccess(senderUser)) {
+            if (account.isSuspended() || account.isDeleted()) {
+                throw new Exception("Trying to access suspended account!");
+            }
+
+            if (!account.hasAccess(senderUser) && !sender.hasPermission("bucketfinance.account.user.others")) {
                 throw new Exception("Sender has no access to account!");
-            } // TODO: add permission bypass
+            }
 
             List<User> users = account.getUsers();
 
             // Print message
             
-            String initialMessage = Messages.getString("account.list_users");
+            String initialMessage = Messages.getString("account.list_users.header");
 
             for (User user : users) {
-                String initialContent = Messages.getString("account.list_users");
+                String initialContent = Messages.getString("account.list_users.item");
                 Map<String, String> placeholders = new HashMap<>();
 
                 placeholders.put("%user%", user.getUsername());
@@ -68,9 +69,8 @@ public class ListUsers implements Command {
             Component component = mm.deserialize(parsedMessage);
             sender.sendMessage(component);
         } catch (Exception e) {
-            Component component = mm.deserialize(Messages.getString("command_failed") + "<newline>| " + e.getMessage());
+            Component component = mm.deserialize("<red>| " + e.getMessage());
             sender.sendMessage(component);
-            e.printStackTrace();
         }
     }
 

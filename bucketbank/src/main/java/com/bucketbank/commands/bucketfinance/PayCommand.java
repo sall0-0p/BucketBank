@@ -33,13 +33,17 @@ public class PayCommand implements Command {
     @Override
     public void execute(CommandSender sender, String[] args) {
         try {
+            if (!sender.hasPermission("bucketfinance.pay")) {
+                throw new Exception("You have no permission to use this command!");
+            }
+
             String messageType;
             String receiverPlayerId;
 
             if (args.length > 2 && isPositiveInteger(args[2])) {
                 if (isValidAccountId(args[0]) && isValidAccountId(args[1])) {
                     // bf pay accountId accountId amount reason | messageType: account_account
-                    transactionManager.createTransaction(args[0], args[1], Integer.valueOf(args[2]), concatenateArgs(args, 3));
+                    transactionManager.createTransaction(args[0], args[1], Float.valueOf(args[2]), concatenateArgs(args, 3));
                     messageType = "account_account";
                     receiverPlayerId = new Account(args[1]).getOwnerId();
 
@@ -49,7 +53,7 @@ public class PayCommand implements Command {
                     // bf pay accountId username amount reason | messageType: account_username
                     User destinationUser = new User(Bukkit.getOfflinePlayer(args[1]));
 
-                    transactionManager.createTransaction(args[0], destinationUser.getPersonalAccountId(), Integer.valueOf(args[2]), concatenateArgs(args, 3));
+                    transactionManager.createTransaction(args[0], destinationUser.getPersonalAccountId(), Float.valueOf(args[2]), concatenateArgs(args, 3));
                     messageType = "account_username";
                     receiverPlayerId = destinationUser.getUserId();
 
@@ -66,7 +70,7 @@ public class PayCommand implements Command {
                     // bf pay accountId amount reason | messageType: account
                     User senderUser = new User(((Player) sender).getUniqueId().toString());
 
-                    transactionManager.createTransaction(senderUser.getPersonalAccountId(), args[0], Integer.valueOf(args[1]), concatenateArgs(args, 2));
+                    transactionManager.createTransaction(senderUser.getPersonalAccountId(), args[0], Float.valueOf(args[1]), concatenateArgs(args, 2));
                     messageType = "account";
                     receiverPlayerId = new Account(args[0]).getOwnerId();
 
@@ -77,7 +81,7 @@ public class PayCommand implements Command {
                     User senderUser = new User(((Player) sender).getUniqueId().toString());
                     User destinationUser = new User(Bukkit.getOfflinePlayer(args[0]));
                     
-                    transactionManager.createTransaction(senderUser.getPersonalAccountId(), destinationUser.getPersonalAccountId(), Integer.valueOf(args[1]), concatenateArgs(args, 2));
+                    transactionManager.createTransaction(senderUser.getPersonalAccountId(), destinationUser.getPersonalAccountId(), Float.valueOf(args[1]), concatenateArgs(args, 2));
                     messageType = "username";
                     receiverPlayerId = destinationUser.getUserId();
 
@@ -150,12 +154,13 @@ public class PayCommand implements Command {
     private boolean isPositiveInteger(String str) {
         if (str == null) {
             return false;
-        }
-        try {
-            int number = Integer.parseInt(str);
-            return number > 0;
-        } catch (NumberFormatException e) {
-            return false;
+        } else {
+            try {
+                float number = Float.parseFloat(str);
+                return number > 0;
+            } catch (NumberFormatException e) {
+                return false;
+            }
         }
     }
 }

@@ -26,6 +26,10 @@ public class DeleteUserCommand implements Command {
     @Override
     public void execute(CommandSender sender, String[] args) {
         try {
+            if (!sender.hasPermission("bucketfinance.user.delete")) {
+                throw new Exception("You have no permission to use this command!");
+            }
+
             OfflinePlayer player = Bukkit.getOfflinePlayer(args[0]);
             UUID userId = player.getUniqueId();
             String username = player.getName();

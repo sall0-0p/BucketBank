@@ -27,8 +27,8 @@ public class User {
     private long profileCreatedTimestamp;
     private String personalAccountId;
     private boolean suspended;
-    private int debt;
-    private int accountLimit;
+    private float debt;
+    private float accountLimit;
     private boolean deleted;
 
     // constructor (load user)
@@ -43,8 +43,8 @@ public class User {
             profileCreatedTimestamp = (long) userData.get("profileCreatedTimestamp");
             personalAccountId = (String) userData.get("personalAccountId");
             suspended = (Boolean) userData.get("suspended");
-            debt = (int) userData.get("debt");
-            accountLimit = (int) userData.get("accountLimit");
+            debt = (float) userData.get("debt");
+            accountLimit = (float) userData.get("accountLimit");
             deleted = (Boolean) userData.get("deleted");
 
         } catch (SQLException e) {
@@ -66,8 +66,8 @@ public class User {
             this.profileCreatedTimestamp = (long) userData.get("profileCreatedTimestamp");
             this.personalAccountId = (String) userData.get("personalAccountId");
             this.suspended = (Boolean) userData.get("suspended");
-            this.debt = (int) userData.get("debt");
-            this.accountLimit = (int) userData.get("accountLimit");
+            this.debt = (float) userData.get("debt");
+            this.accountLimit = (float) userData.get("accountLimit");
             this.deleted = (Boolean) userData.get("deleted");
 
         } catch (SQLException e) {
@@ -77,7 +77,7 @@ public class User {
     }
     
     // constructor (create new user from id)
-    public User(OfflinePlayer player, boolean createNewUser, int creditLimit, int creditPercent) throws Exception {
+    public User(OfflinePlayer player, boolean createNewUser, float creditLimit, float creditPercent) throws Exception {
         String userId = player.getUniqueId().toString();
         String username = player.getName();
 
@@ -166,7 +166,7 @@ public class User {
         // later
     }
 
-    public int getAccountLimit() {
+    public float getAccountLimit() {
         try {
             return usersDatabase.getAccountLimit(userId);
         } catch (SQLException e) {
@@ -245,7 +245,7 @@ public class User {
         }
     }
 
-    public void setAccountLimit(int newLimit) {
+    public void setAccountLimit(float newLimit) {
         try {
             usersDatabase.setAccountLimit(userId, newLimit);
         } catch (SQLException e) {

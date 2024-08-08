@@ -10,6 +10,7 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import com.bucketbank.App;
 import com.bucketbank.modules.Command;
@@ -28,8 +29,11 @@ public class AboutUserCommand implements Command {
     @Override
     public void execute(CommandSender sender, String[] args) {
         try {
-            OfflinePlayer player = Bukkit.getOfflinePlayer(args[0]);
+            if (!sender.hasPermission("bucketfinance.user.about")) {
+                throw new Exception("You have no permission to use this command!");
+            }
 
+            OfflinePlayer player = Bukkit.getOfflinePlayer(args[0]);
             User user = new User(player);
 
             // Setup placeholders

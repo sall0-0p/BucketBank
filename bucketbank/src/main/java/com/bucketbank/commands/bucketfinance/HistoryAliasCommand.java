@@ -27,6 +27,10 @@ public class HistoryAliasCommand implements Command {
     @Override
     public void execute(CommandSender sender, String[] args) {
         try {
+            if (!sender.hasPermission("bucketfinance.user.history")) {
+                throw new Exception("You have no permission to use this command!");
+            }
+
             if (sender instanceof Player) {
                 Player senderPlayer = (Player) sender;
                 if (args.length == 0) {

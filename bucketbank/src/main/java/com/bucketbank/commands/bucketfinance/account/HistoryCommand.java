@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import com.bucketbank.App;
 import com.bucketbank.database.TransactionsDatabase;
@@ -32,6 +33,14 @@ public class HistoryCommand implements Command {
     @Override
     public void execute(CommandSender sender, String[] args) {
         try {
+            if (!(sender instanceof Player)) {
+                throw new Exception("Sender must be player!");
+            }
+
+            if (!sender.hasPermission("bucketfinance.account.history")) {
+                throw new Exception("You have no permission to use this command!");
+            }
+
             List<Transaction> transactions = transactionsDatabase.getTransactionsByAccountId(args[0]);
             Collections.reverse(transactions);
             Map<String, String> placeholders = new HashMap<>();
@@ -49,6 +58,11 @@ public class HistoryCommand implements Command {
             List<Transaction> cutTransactions = getTransactionsFromPage(transactions, currentPage);
             Account account = new Account(args[0]);
             User accountOwner = new User(account.getOwnerId());
+            User senderUser = new User(((Player) sender).getUniqueId().toString());
+
+            if (!account.hasAccess(senderUser) && !sender.hasPermission("bucketfinance.account.user.others")) {
+                throw new Exception("Sender has no access to account!");
+            }
 
             // Setup placeholders
             placeholders.put("%user%", accountOwner.getUsername());
@@ -73,9 +87,8 @@ public class HistoryCommand implements Command {
             Component component = mm.deserialize(parsedMessage);
             sender.sendMessage(component);
         } catch (Exception e) {
-            Component component = mm.deserialize(Messages.getString("command_failed") + "<newline>| " + e.getMessage());
+            Component component = mm.deserialize("<red>| " + e.getMessage());
             sender.sendMessage(component);
-            e.printStackTrace();
         }
     }
 
@@ -95,7 +108,7 @@ public class HistoryCommand implements Command {
 
             placeholders.put("%source_player%", sourceUser.getUsername());
             placeholders.put("%destination_player%", destinationUser.getUsername());
-            placeholders.put("%source_displayName", sourceAccount.getDisplayName());
+            placeholders.put("%source_displayName%", sourceAccount.getDisplayName());
             placeholders.put("%destination_displayName%", destinationAccount.getDisplayName());
         } catch (Exception e) {
             e.printStackTrace();

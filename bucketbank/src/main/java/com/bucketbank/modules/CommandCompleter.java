@@ -126,7 +126,7 @@ public class CommandCompleter implements TabCompleter {
                                 List<String> result = new ArrayList<>();
 
                                 addIfHasPermission(player, result, "create", "bucketfinance.account.create");
-                                addIfHasPermission(player, result, "balance", "bucketfinance.account.balance.set");
+                                addIfHasPermission(player, result, "balance", "bucketfinance.account.balance");
                                 addIfHasPermission(player, result, "history", "bucketfinance.account.history");
                                 addIfHasPermission(player, result, "user", "bucketfinance.account.user");
                                 addIfHasPermission(player, result, "suspend", "bucketfinance.account.suspend");

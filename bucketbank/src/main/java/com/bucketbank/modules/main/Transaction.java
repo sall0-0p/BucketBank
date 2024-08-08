@@ -12,7 +12,7 @@ public class Transaction {
     private String transactionId;
     private String sourceAccountId;
     private String destinationAccountId;
-    private int amount;
+    private float amount;
     private long timestamp;
     private String description;
 
@@ -21,7 +21,7 @@ public class Transaction {
 
     // actual constructor
 
-    private void buildTransaction(Account sourceAccount, Account destinationAccount, int amount, String description) throws SQLException {
+    private void buildTransaction(Account sourceAccount, Account destinationAccount, float amount, String description) throws SQLException {
         this.sourceAccountId = sourceAccount.getAccountId();
         this.destinationAccountId = destinationAccount.getAccountId();
         this.timestamp = (System.currentTimeMillis() / 1000L);
@@ -31,7 +31,7 @@ public class Transaction {
 
     // create Transaction object from database
 
-    public Transaction(String transactionId, String sourceAccountId, String destinationAccountId, int amount, long timestamp, String description) {
+    public Transaction(String transactionId, String sourceAccountId, String destinationAccountId, float amount, long timestamp, String description) {
         this.transactionId = transactionId;
         this.sourceAccountId = sourceAccountId;
         this.destinationAccountId = destinationAccountId;
@@ -42,18 +42,18 @@ public class Transaction {
     
     // adapters
 
-    public Transaction(Account sourceAccount, Account destinationAccount, int amount, String description) throws SQLException {
+    public Transaction(Account sourceAccount, Account destinationAccount, float amount, String description) throws SQLException {
         buildTransaction(sourceAccount, destinationAccount, amount, description);
     }
 
-    public Transaction(String sourceAccountId, String destinationAccountId, int amount, String description) throws SQLException {
+    public Transaction(String sourceAccountId, String destinationAccountId, float amount, String description) throws SQLException {
         Account sourceAccount = new Account(sourceAccountId);
         Account destinationAccount = new Account(destinationAccountId);
 
         buildTransaction(sourceAccount, destinationAccount, amount, description);
     }
 
-    public Transaction(OfflinePlayer sourcePlayer, OfflinePlayer destinationPlayer, int amount, String description) {
+    public Transaction(OfflinePlayer sourcePlayer, OfflinePlayer destinationPlayer, float amount, String description) {
         try {
             User sourceUser = new User(sourcePlayer);
             User destinationUser = new User(destinationPlayer);
@@ -77,7 +77,7 @@ public class Transaction {
         return destinationAccountId;
     }
 
-    public int getAmount() {
+    public float getAmount() {
         return amount;
     }
 

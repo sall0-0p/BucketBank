@@ -35,34 +35,24 @@ public class Notification {
         if (createNew) {
             this.userId = id;
             this.content = content;
-            logger.info("Creating a new notification for user: " + userId);
 
             try {
                 this.timestamp = notificationsDatabase.createNotification(userId, content);
-                logger.info("Notification created with timestamp: " + timestamp);
             } catch (Exception e) {
-                logger.severe("Error creating notification in database: " + e.getMessage());
                 throw e;
             }
 
             OfflinePlayer player = Bukkit.getOfflinePlayer(UUID.fromString(id));
             if (!(player.getPlayer() == null)) {
-                logger.info("Player is online, sending message.");
                 try {
                     Component parsed = mm.deserialize(content);
                     player.getPlayer().sendMessage(parsed);
                     notificationsDatabase.markAsRead(id, content, timestamp);
-                    logger.info("Notification marked as read for user: " + userId);
                 } catch (Exception e) {
-                    logger.severe("Error sending message or marking notification as read: " + e.getMessage());
                     throw e;
                 }
-            } else {
-                logger.info("Player is offline, message not sent.");
-                logger.info(id);
             }
         } else {
-            logger.warning("Attempted to create notification with createNew set to false.");
             throw new Exception("Unable to create notification");
         }
     }

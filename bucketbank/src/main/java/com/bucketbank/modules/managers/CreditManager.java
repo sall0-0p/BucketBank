@@ -43,10 +43,10 @@ public class CreditManager {
 
     private void applyInterestForAccount(Account account) {
         long timeElapsed = currentTime - account.getTimeSinceLastInterestCalculation();
-        int currentBalance = account.getBalance();
+        float currentBalance = account.getBalance();
 
         if (currentBalance < 0) {
-            int interest = calculateInterest(account, timeElapsed);
+            float interest = calculateInterest(account, timeElapsed);
 
             try {
                 plugin.getLogger().info("Applying interest of " + String.valueOf(interest) + " to account " + account.getAccountId());
@@ -59,10 +59,10 @@ public class CreditManager {
         }
     }
 
-    private int calculateInterest(Account account, long timeElapsed) {
-        int interestPercentage = account.getCreditPercent();
-        int negativeBalance = Math.abs(account.getBalance());
-        int interest = (int) Math.ceil(negativeBalance * (timeElapsed * ((interestPercentage / 100) / 604800)));
+    private float calculateInterest(Account account, long timeElapsed) {
+        float interestPercentage = account.getCreditPercent();
+        float negativeBalance = Math.abs(account.getBalance());
+        float interest = (float) Math.ceil(negativeBalance * (timeElapsed * ((interestPercentage / 100) / 604800)));
 
         return interest;
     }

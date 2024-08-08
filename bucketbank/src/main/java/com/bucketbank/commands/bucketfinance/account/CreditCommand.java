@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import com.bucketbank.App;
 import com.bucketbank.modules.Command;
@@ -24,12 +25,20 @@ public class CreditCommand implements Command {
         try {
             Account account = new Account(args[0]);
 
-            int creditLimit;
-            int creditPercent;
+            if (!(sender instanceof Player)) {
+                throw new Exception("Sender must be player!");
+            }
+
+            if (!sender.hasPermission("bucketfinance.account.credit")) {
+                throw new Exception("You have no permission to use this command!");
+            }
+
+            float creditLimit;
+            float creditPercent;
             String messageType;
             if (args.length > 2) {
-                creditLimit = Integer.valueOf(args[1]);
-                creditPercent = Integer.valueOf(args[2]);
+                creditLimit = Float.valueOf(args[1]);
+                creditPercent = Float.valueOf(args[2]);
                 account.setCreditLimit(creditLimit);
                 account.setCreditPercent(creditPercent);
 
@@ -53,9 +62,8 @@ public class CreditCommand implements Command {
             Component component = mm.deserialize(parsedMessage);
             sender.sendMessage(component);
         } catch (Exception e) {
-            Component component = mm.deserialize(Messages.getString("command_failed") + "<newline>| " + e.getMessage());
+            Component component = mm.deserialize("<red>| " + e.getMessage());
             sender.sendMessage(component);
-            e.printStackTrace();
         }
     }
 

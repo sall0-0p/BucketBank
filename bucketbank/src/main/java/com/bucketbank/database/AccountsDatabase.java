@@ -23,10 +23,10 @@ public class AccountsDatabase {
                 "accountId TEXT PRIMARY KEY, " +
                 "displayName TEXT DEFAULT Account, " +
                 "ownerId TEXT NOT NULL, " +
-                "balance INTEGER NOT NULL DEFAULT 0, " +
+                "balance FLOAT NOT NULL DEFAULT 0, " +
                 "suspended BOOL DEFAULT 0, " +
-                "creditLimit INTEGER DEFAULT 0, " +
-                "creditPercent INTEGER DEFAULT 0, " +
+                "creditLimit FLOAT DEFAULT 0, " +
+                "creditPercent FLOAT DEFAULT 0, " +
                 "accountCreatedTimestamp BIGINT NOT NULL, " +
                 "lastInterestCalculation BIGINT, " +
                 "deleted BOOL DEFAULT 0" +
@@ -89,10 +89,10 @@ public class AccountsDatabase {
     };
 
     // setters
-    public void setBalance(String accountId, int balance) throws SQLException {
+    public void setBalance(String accountId, float balance) throws SQLException {
         if (accountExists(accountId)) {
             try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE accounts SET balance = ? WHERE accountId = ?")) {
-                preparedStatement.setInt(1, balance);
+                preparedStatement.setFloat(1, balance);
                 preparedStatement.setString(2, accountId);
                 preparedStatement.executeUpdate();
             }
@@ -129,19 +129,19 @@ public class AccountsDatabase {
         }
     }
 
-    public void setCreditLimit(String accountId, int creditLimit) throws SQLException {
+    public void setCreditLimit(String accountId, float creditLimit) throws SQLException {
         String query = "UPDATE accounts SET creditLimit = ? WHERE accountId = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setInt(1, creditLimit);
+            statement.setFloat(1, creditLimit);
             statement.setString(2, accountId);
             statement.executeUpdate();
         }
     }
 
-    public void setCreditPercent(String accountId, int creditPercent) throws SQLException {
+    public void setCreditPercent(String accountId, float creditPercent) throws SQLException {
         String query = "UPDATE accounts SET creditPercent = ? WHERE accountId = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setInt(1, creditPercent);
+            statement.setFloat(1, creditPercent);
             statement.setString(2, accountId);
             statement.executeUpdate();
         }
@@ -158,14 +158,14 @@ public class AccountsDatabase {
     }
 
     // getters
-    public int getBalance(String accountId) throws SQLException {
+    public float getBalance(String accountId) throws SQLException {
         if (accountExists(accountId)) {
             try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT balance FROM accounts WHERE accountId = ?")) {
                 preparedStatement.setString(1, accountId);
                 ResultSet resultSet = preparedStatement.executeQuery();
 
                 if (resultSet.next()) {
-                    return resultSet.getInt("balance");
+                    return resultSet.getFloat("balance");
                 } else {
                     return 0;
                 }
@@ -243,26 +243,26 @@ public class AccountsDatabase {
         }
     }
 
-    public int getCreditLimit(String accountId) throws SQLException {
+    public float getCreditLimit(String accountId) throws SQLException {
         String query = "SELECT creditLimit FROM accounts WHERE accountId = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, accountId);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
-                return resultSet.getInt("creditLimit");
+                return resultSet.getFloat("creditLimit");
             } else {
                 throw new SQLException("Account not found");
             }
         }
     }
 
-    public int getCreditPercent(String accountId) throws SQLException {
+    public float getCreditPercent(String accountId) throws SQLException {
         String query = "SELECT creditPercent FROM accounts WHERE accountId = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, accountId);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
-                return resultSet.getInt("creditPercent");
+                return resultSet.getFloat("creditPercent");
             } else {
                 throw new SQLException("Account not found");
             }

@@ -1,5 +1,7 @@
 package com.bucketbank.modules.managers;
 
+import java.util.logging.Logger;
+
 import com.bucketbank.App;
 import com.bucketbank.database.TransactionsDatabase;
 import com.bucketbank.modules.main.Account;
@@ -7,13 +9,14 @@ import com.bucketbank.modules.main.Transaction;
 
 public class TransactionManager {
     private App plugin = App.getPlugin();
+    private Logger logger = plugin.getLogger();
     private TransactionsDatabase transactionsDatabase;
     
     public TransactionManager() {
         this.transactionsDatabase = plugin.getDatabaseManager().getTransactionsDatabase();
     }
 
-    public String createTransaction(String sourceAccountId, String destinationAccountId, int amount, String description) throws Exception {
+    public String createTransaction(String sourceAccountId, String destinationAccountId, float amount, String description) throws Exception {
         if (!Account.exists(sourceAccountId) || !Account.exists(destinationAccountId)) {
             throw new Exception("One or both accounts do not exist!");
         }

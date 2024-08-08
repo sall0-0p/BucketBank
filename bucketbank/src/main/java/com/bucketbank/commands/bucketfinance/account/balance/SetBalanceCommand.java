@@ -27,6 +27,10 @@ public class SetBalanceCommand implements Command {
                 throw new Exception("accountId and value have to be provided!");
             }
 
+            if (!sender.hasPermission("bucketfinance.account.balance")) {
+                throw new Exception("You have no permission to use this command!");
+            }
+
             Account account;
             String messageType;
             if (isValidAccountId(args[0])) {
@@ -35,7 +39,7 @@ public class SetBalanceCommand implements Command {
                     account = new Account(args[0]);
 
                     try {
-                        account.setBalance(Integer.parseInt(args[1]));
+                        account.setBalance(Float.parseFloat(args[1]));
                     } catch (Exception e) {
                         e.printStackTrace();
                         throw new Exception("Invalid number or failed to set balance");
@@ -60,9 +64,8 @@ public class SetBalanceCommand implements Command {
             Component component = mm.deserialize(parsedMessage);
             sender.sendMessage(component);
         } catch (Exception e) {
-            Component component = mm.deserialize(Messages.getString("command_failed") + "<newline>| " + e.getMessage());
+            Component component = mm.deserialize("<red>| " + e.getMessage());
             sender.sendMessage(component);
-            e.printStackTrace();
         }
     }
 

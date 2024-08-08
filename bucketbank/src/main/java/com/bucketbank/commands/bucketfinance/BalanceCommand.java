@@ -25,6 +25,10 @@ public class BalanceCommand implements Command {
     @Override
     public void execute(CommandSender sender, String[] args) {
         try {
+            if (!sender.hasPermission("bucketfinance.balance")) {
+                throw new Exception("You have no permission to use this command!");
+            }
+
             Account account;
             String messageType;
 

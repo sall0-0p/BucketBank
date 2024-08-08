@@ -32,8 +32,8 @@ public class UsersDatabase {
                 "profileCreatedTimestamp BIGINT NOT NULL, " +
                 "personalAccountId TEXT DEFAULT 000000, " +
                 "suspended BOOL DEFAULT 0, " +
-                "debt INT DEFAULT 0, " +
-                "accountLimit INT DEFAULT 3, " +
+                "debt FLOAT DEFAULT 0, " +
+                "accountLimit FLOAT DEFAULT 3, " +
                 "deleted BOOL DEFAULT 0" +
             ")");
         }
@@ -108,22 +108,22 @@ public class UsersDatabase {
     }
 
     // excludes loans and credit card debt!
-    public void setDebt(String userId, int debtAmount) throws SQLException {
+    public void setDebt(String userId, float debtAmount) throws SQLException {
         String sql = "UPDATE users SET debt = ? WHERE userId = ?";
         if (userExists(userId)) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                preparedStatement.setInt(1, debtAmount);
+                preparedStatement.setFloat(1, debtAmount);
                 preparedStatement.setString(2, userId);
                 preparedStatement.executeUpdate();
             }
         }
     }
 
-    public void setAccountLimit(String userId, int newLimit) throws SQLException {
+    public void setAccountLimit(String userId, float newLimit) throws SQLException {
         String sql = "UPDATE users SET accountLimit = ? WHERE userId = ?";
         if (userExists(userId)) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                preparedStatement.setInt(1, newLimit);
+                preparedStatement.setFloat(1, newLimit);
                 preparedStatement.setString(2, userId);
                 preparedStatement.executeUpdate();
             }
@@ -205,7 +205,7 @@ public class UsersDatabase {
         }
     }
 
-    public int getDebt(String userId) throws SQLException {
+    public float getDebt(String userId) throws SQLException {
         String sql = "SELECT debt FROM users WHERE userId = ?";
         if (userExists(userId)) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
@@ -213,7 +213,7 @@ public class UsersDatabase {
                 ResultSet resultSet = preparedStatement.executeQuery();
 
                 if (resultSet.next()) {
-                    return resultSet.getInt("debt");
+                    return resultSet.getFloat("debt");
                 } else {
                     return 0;
                 }
@@ -223,7 +223,7 @@ public class UsersDatabase {
         }
     }
 
-    public int getAccountLimit(String userId) throws SQLException {
+    public float getAccountLimit(String userId) throws SQLException {
         String sql = "SELECT accountLimit FROM users WHERE userId = ?";
         if (userExists(userId)) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {

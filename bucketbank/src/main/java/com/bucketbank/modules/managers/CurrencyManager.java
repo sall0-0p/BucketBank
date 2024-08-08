@@ -23,7 +23,6 @@ public class CurrencyManager {
     App plugin = App.getPlugin();
     Logger logger = plugin.getLogger();
 
-
     public CurrencyManager() {}
 
     @SuppressWarnings("deprecation")
@@ -38,7 +37,8 @@ public class CurrencyManager {
             // Check for specific name and lore
             ItemMeta meta = item.getItemMeta();
             if (meta != null && meta.hasDisplayName()) {
-                if (ChatColor.stripColor(meta.getDisplayName()).equals(CURRENCY_NAME)) {
+                // TODO: Remove this
+                if (ChatColor.stripColor(meta.getDisplayName()).equals(CURRENCY_NAME) || ChatColor.stripColor(meta.getDisplayName()).equals("Ⱥ Фрины")) {
                     return true;
                 }
             }
@@ -60,23 +60,14 @@ public class CurrencyManager {
         List<ItemStack> itemsToRemove = new ArrayList<>();
         int count = 0;
     
-        logger.info("Starting depositCurrency method.");
-        logger.info("Player: " + player.getName() + ", Amount: " + amount);
-    
         if (player.getInventory().getContents() != null) {
-            logger.info("Player inventory is not null.");
             for (ItemStack item : player.getInventory().getContents()) {
                 if (item != null && validateCurrency(item)) {
-                    logger.info("Valid currency item found: " + item.toString());
                     itemsToRemove.add(item);
                     count += item.getAmount();
-                    logger.info("Current count: " + count);
                     if (count >= amount) {
-                        logger.info("Required amount reached. Breaking loop.");
                         break;
                     }
-                } else if (item != null) {
-                    logger.info("Invalid item: " + item.toString());
                 }
             }
         } else {
@@ -86,30 +77,22 @@ public class CurrencyManager {
         // Remove the items from the player's inventory
         if (count >= amount) {
             int remaining = amount;
-            logger.info("Sufficient currency found. Starting removal process.");
             for (ItemStack item : itemsToRemove) {
                 int itemAmount = item.getAmount();
-                logger.info("Processing item: " + item.toString() + ", Item Amount: " + itemAmount + ", Remaining: " + remaining);
                 if (itemAmount <= remaining) {
                     player.getInventory().removeItem(item);
                     remaining -= itemAmount;
-                    logger.info("Item removed completely. Remaining amount to remove: " + remaining);
                 } else {
                     item.setAmount(itemAmount - remaining);
-                    logger.info(String.valueOf(itemAmount - remaining));
-                    logger.info("Item partially removed. Remaining amount set to zero.");
                     remaining = 0;
                 }
      
                 if (remaining <= 0) {
-                    logger.info("All required items removed. Breaking loop.");
                     break;
                 }
             }
-            logger.info("Deposit successful.");
             return true;
         } else {
-            logger.info("Insufficient currency. Deposit failed.");
             return false;
         }
     }
@@ -180,16 +163,30 @@ public class CurrencyManager {
         }
     
         if (remainingItems.isEmpty()) {
-            logger.info("Withdraw successful.");
             return true;
         } else {
             // If there are remaining items, it means the inventory was full
             for (ItemStack item : remainingItems.values()) {
                 player.getWorld().dropItemNaturally(player.getLocation(), item);
             }
-            logger.info("Withdraw successful, but player's inventory was full. Dropped remaining items at player's location.");
             return true;
         }
+    }
+
+    public int getDiamondsInInventory(Player player) {
+        int count = 0;
+    
+        if (player.getInventory().getContents() != null) {
+            for (ItemStack item : player.getInventory().getContents()) {
+                if (item != null && validateCurrency(item)) {
+                    count += item.getAmount();
+                }
+            }
+        } else {
+            logger.info("Player inventory is null.");
+        }
+        
+        return count;
     }
     
 }    
