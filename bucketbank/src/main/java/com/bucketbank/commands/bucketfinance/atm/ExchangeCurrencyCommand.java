@@ -1,5 +1,6 @@
 package com.bucketbank.commands.bucketfinance.atm;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -10,6 +11,8 @@ import org.bukkit.inventory.PlayerInventory;
 import com.bucketbank.App;
 import com.bucketbank.modules.Command;
 import com.bucketbank.modules.DiscordLogger;
+import com.bucketbank.modules.main.Account;
+import com.bucketbank.modules.main.User;
 import com.bucketbank.modules.managers.ATMManager;
 import com.bucketbank.modules.managers.CurrencyManager;
 
@@ -56,16 +59,41 @@ public class ExchangeCurrencyCommand implements Command {
                     double exchangeCourse = ((minExchangeCourse + maxExchangeCourse) / 2);
                     int diamondsToGive = (int) Math.floor(amount * exchangeCourse);
 
-                    // Play the sound
-                    player.playSound(Sound.sound(Key.key("entity.experience_orb.pickup"), Sound.Source.MASTER, 1f, 1f), Sound.Emitter.self());
+                    if (config.getBoolean("data.compensate_to_accounts")) {
+                        double diamondsToCompensate = Math.floor(amount * exchangeCourse) - diamondsToGive;
+                        double compensation = diamondsToCompensate / exchangeCourse;
+                        float roundedCompensation = Math.round(compensation * 100.0f) / 100.0f;
 
-                    giveDiamonds(player, diamondsToGive);
-                    currencyManager.depositCurrency(player, amount);
+                        if (User.existsWithUsername(player.getName())) {
+                            User user = new User(player.getUniqueId().toString());
+                            Account personalAccount = user.getPersonalAccount();
 
-                    plugin.diamondsInEconomy -= diamondsToGive;
-                    plugin.currencyInEconomy -= amount;
+                            personalAccount.modifyBalance(roundedCompensation);
+                        } else {
+                            User user = new User(Bukkit.getOfflinePlayer(player.getUniqueId()), true, 0f, 0f);
+                            Account personalAccount = user.getPersonalAccount();
 
-                    discordLogger.log("atm", "Player " + player.getName() + " exchanged `" + String.valueOf(amount) + "$` for `" + String.valueOf(diamondsToGive) + "` diamonds. With course of `" + String.valueOf(exchangeCourse) + "`");
+                            personalAccount.modifyBalance(roundedCompensation);
+                        }
+                    }
+
+                    int slotsRequired = (int) Math.floor(diamondsToGive / 64);
+                    if (currencyManager.getEmptySlots(player) < slotsRequired) {
+                        throw new Exception("You do not have enough space in inventory.");
+                    }
+
+                    if (diamondsToGive > 0) {
+                        // Play the sound
+                        giveDiamonds(player, diamondsToGive);
+                        currencyManager.depositCurrency(player, amount);
+
+                        plugin.diamondsInEconomy -= diamondsToGive;
+                        plugin.currencyInEconomy -= amount;
+
+                        player.playSound(Sound.sound(Key.key("entity.experience_orb.pickup"), Sound.Source.MASTER, 1f, 1f), Sound.Emitter.self());
+
+                        discordLogger.log("atm_currency", "Player " + player.getName() + " exchanged `" + String.valueOf(amount) + "$` for `" + String.valueOf(diamondsToGive) + "` diamonds. With course of `" + String.valueOf(exchangeCourse) + "`");
+                    }
                 } else {
                     throw new Exception("You have not enought currency in your inventory!");
                 }

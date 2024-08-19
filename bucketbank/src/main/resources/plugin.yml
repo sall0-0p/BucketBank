@@ -1,6 +1,6 @@
 main: com.bucketbank.App
 name: BucketFinance
-version: 1.0.2
+version: "1.3"
 api-version: 1.18
 commands: 
   bucketfinance:
@@ -23,11 +23,15 @@ permissions:
     description: "Description will be added later!"
   bucketfinance.atm.advanced:
     description: "Description will be added later!"
+  bucketfinance.atm.others:
+    description: "Description will be added later!"
   bucketfinance.balance:
     description: "Description will be added later!"
   bucketfinance.balance.others:
     description: "Description will be added later!"
   bucketfinance.pay:
+    description: "Description will be added later!"
+  bucketfinance.pay.others:
     description: "Description will be added later!"
   bucketfinance.about:
     description: "Description will be added later!"
@@ -48,6 +52,8 @@ permissions:
   bucketfinance.account.reinstate:
     description: "Description will be added later!"
   bucketfinance.account.credit:
+    description: "Description will be added later!"
+  bucketfinance.account.rename:
     description: "Description will be added later!"
   bucketfinance.user.about:
     description: "Description will be added later!"

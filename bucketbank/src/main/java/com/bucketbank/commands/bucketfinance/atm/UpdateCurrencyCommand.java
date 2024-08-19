@@ -20,7 +20,7 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
-public class ExchangeDiamondsCommand implements Command {
+public class UpdateCurrencyCommand implements Command {
     private static final MiniMessage mm = MiniMessage.miniMessage();
 
     private App plugin = App.getPlugin();
@@ -49,56 +49,18 @@ public class ExchangeDiamondsCommand implements Command {
             int amount = Integer.parseInt(args[0]);
 
             if (amount > 0 && amount <= 256) {
-                if (inventory.contains(Material.DIAMOND, amount)) {
-                    int diamondsInEconomy = plugin.diamondsInEconomy;
-                    int exchangeCoefficient = config.getInt("data.exchange_coefficient");
+                int currencyToGive = (int) Math.floor(amount);
 
-                    float minExchangeCourse = diamondsInEconomy / (float) exchangeCoefficient;
-                    float maxExchangeCourse = (diamondsInEconomy + amount) / (float) exchangeCoefficient;
+                if (currencyToGive > 0) {
+                    // Play the sound
+                    player.playSound(Sound.sound(Key.key("entity.experience_orb.pickup"), Sound.Source.MASTER, 1f, 1f), Sound.Emitter.self());
 
-                    double exchangeCourse = ((minExchangeCourse + maxExchangeCourse) / 2);
-
-                    int currencyToGive = (int) Math.floor(amount / exchangeCourse);
-                    
-                    if (config.getBoolean("data.compensate_to_accounts")) {
-                        double compensation = (amount / exchangeCourse) - currencyToGive;
-                        float roundedCompensation = Math.round(compensation * 100.0f) / 100.0f;
-
-                        if (User.existsWithUsername(player.getName())) {
-                            User user = new User(player.getUniqueId().toString());
-                            Account personalAccount = user.getPersonalAccount();
-
-                            personalAccount.modifyBalance(roundedCompensation);
-                        } else {
-                            User user = new User(Bukkit.getOfflinePlayer(player.getUniqueId()), true, 0f, 0f);
-                            Account personalAccount = user.getPersonalAccount();
-
-                            personalAccount.modifyBalance(roundedCompensation);
-                        }
-                    }
-
-                    int slotsRequired = (int) Math.floor(currencyToGive / 64);
-                    if (currencyManager.getEmptySlots(player) < slotsRequired) {
-                        throw new Exception("You do not have enough space in inventory.");
-                    }
-
-                    if (currencyToGive > 0) {
-                        // Play the sound
-                        player.playSound(Sound.sound(Key.key("entity.experience_orb.pickup"), Sound.Source.MASTER, 1f, 1f), Sound.Emitter.self());
-
-                        // Remove diamonds from the player's inventory
-                        removeDiamonds(inventory, (int) Math.ceil(currencyToGive * exchangeCourse));
-
-                        // Update the player's currency
+                    // Update the player's currency
+                    if (currencyManager.depositCurrency(player, currencyToGive)) {
                         currencyManager.withdrawCurrency(player, currencyToGive);
-
-                        plugin.diamondsInEconomy += amount;
-                        plugin.currencyInEconomy += currencyToGive;
-
-                        discordLogger.log("atm_diamonds", "Player " + player.getName() + " exchanged `" + String.valueOf(amount) + "` diamonds for `" + String.valueOf(currencyToGive) + "$`. With course of `" + String.valueOf(exchangeCourse) + "`");
                     }
-                } else {
-                    throw new Exception("<red>| You do not have enough diamonds in your inventory.");
+                    
+                    discordLogger.log("atm_update", "Player " + player.getName() + " updated `" + String.valueOf(amount) + "$`");
                 }
             } else {
                 throw new Exception("<red>| Amount has to be between 1 and 256!");

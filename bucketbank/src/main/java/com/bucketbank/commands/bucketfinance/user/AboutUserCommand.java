@@ -36,6 +36,10 @@ public class AboutUserCommand implements Command {
             OfflinePlayer player = Bukkit.getOfflinePlayer(args[0]);
             User user = new User(player);
 
+            if (!((Player) sender).getUniqueId().toString().equals(player.getUniqueId().toString()) && !sender.hasPermission("bucketfinance.user.about.others")) {
+                throw new Exception("You have no permission to view this user!");
+            }
+
             // Setup placeholders
             placeholders.put("%user%", user.getUsername());
             placeholders.put("%userId%", user.getUserId());

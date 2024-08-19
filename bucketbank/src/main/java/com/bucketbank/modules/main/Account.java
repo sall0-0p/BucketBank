@@ -78,6 +78,36 @@ public class Account {
         }
     }
 
+    public Account(String userId, boolean createNewAccount, float creditLimit, float creditPercent, String customId) throws Exception {
+        try {
+            if (exists(customId)) {
+                throw new Exception("Account with this id already exists!");
+            }
+
+            if (!isValidAccountId(customId)) {
+                throw new Exception("This id is invalid!");
+            }
+
+            this.accountId = accountsDatabase.createAccount(userId, customId);
+
+            accountsDatabase.updateLastInterestCalculation(this.accountId);
+            accountsDatabase.setCreditPercent(this.accountId, creditPercent);
+            accountsDatabase.setCreditLimit(this.accountId, creditLimit);
+
+            this.ownerId = userId;
+            this.balance = accountsDatabase.getBalance(this.accountId);
+            this.displayName = accountsDatabase.getDisplayName(this.accountId);
+            this.suspended = accountsDatabase.getSuspendedStatus(this.accountId);
+            this.creditLimit = creditLimit;
+            this.creditPercent = creditPercent;
+            this.accountCreatedTimestamp = accountsDatabase.getAccountCreatedTimestamp(this.accountId);
+            this.lastInterestCalculation = accountsDatabase.getLastInterestCalculation(this.accountId);
+            this.deleted = accountsDatabase.isDeleted(this.accountId);
+        } catch (SQLException e) {
+            logger.severe("Failed to create account " + this.accountId);;
+        }
+    }
+
     // getters
 
     public String getAccountId() {
@@ -263,7 +293,7 @@ public class Account {
 
     public void reinstate() {
         try {
-            accountsDatabase.setSuspendedStatus(this.accountId, true);
+            accountsDatabase.setSuspendedStatus(this.accountId, false);
             this.suspended = false;
         } catch (SQLException e) {
             logger.severe("Failed to suspend account " + this.accountId);
@@ -346,5 +376,17 @@ public class Account {
             e.printStackTrace();
             return false;
         }
+    }
+
+    private boolean isValidAccountId(String accountId) {
+        if (accountId == null || accountId.length() != 6) {
+            return false;
+        }
+        for (char c : accountId.toCharArray()) {
+            if (!Character.isDigit(c)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

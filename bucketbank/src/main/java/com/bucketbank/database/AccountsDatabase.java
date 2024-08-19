@@ -64,6 +64,22 @@ public class AccountsDatabase {
         }
     };
 
+    public String createAccount(String accountOwnerId, String customId) throws SQLException {
+        String accountId = customId;
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO accounts (accountId, ownerId, accountCreatedTimestamp) VALUES (?, ?, ?)")) {
+            preparedStatement.setString(1, accountId);
+            preparedStatement.setString(2, accountOwnerId);
+            preparedStatement.setLong(3, System.currentTimeMillis() / 1000L);
+            preparedStatement.executeUpdate();
+
+            // adding user to people with access
+            addAccessToAccount(accountId, accountOwnerId);
+
+            return accountId;
+        }
+    };
+
     // delete account
     public void deleteAccount(String accountId) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE accounts SET deleted = ? WHERE accountId = ?")) {

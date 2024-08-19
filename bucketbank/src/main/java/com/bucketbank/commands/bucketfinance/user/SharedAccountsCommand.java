@@ -20,14 +20,14 @@ import com.bucketbank.modules.main.User;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
-public class AccountsCommand implements Command {
+public class SharedAccountsCommand implements Command {
     private static final App plugin = App.getPlugin();
     private static final MiniMessage mm = MiniMessage.miniMessage();
 
     @Override
     public void execute(CommandSender sender, String[] args) {
         try {
-            if (!sender.hasPermission("bucketfinance.user.accounts")) {
+            if (!sender.hasPermission("bucketfinance.user.shared")) {
                 throw new Exception("You have no permission to use this command!");
             }
 
@@ -40,7 +40,7 @@ public class AccountsCommand implements Command {
             }
 
             User user = new User(player);
-            List<String> accounts = user.getOwnedAccounts();
+            List<String> accounts = getSharedAccountsOnly(user);
             Map<String, String> placeholders = new HashMap<>();
 
             // define pages
@@ -64,8 +64,8 @@ public class AccountsCommand implements Command {
             placeholders.put("%page_count%", String.valueOf(pageCount));
 
             // Print message
-            String header = Messages.getString("lists.accounts.header");
-            String footer = Messages.getString("lists.accounts.footer");
+            String header = Messages.getString("lists.accounts_shared.header");
+            String footer = Messages.getString("lists.accounts_shared.footer");
             String body = "";
 
             for (String accountId : cutAccounts) {
@@ -120,5 +120,20 @@ public class AccountsCommand implements Command {
             input = input.replace(entry.getKey(), entry.getValue());
         }
         return input;
+    }
+
+    public List<String> getSharedAccountsOnly(User user) {
+        try {
+            List<String> accessibleAccounts = new ArrayList<>(user.getAccessibleAccounts());
+            List<String> ownedAccounts = user.getOwnedAccounts();
+
+            accessibleAccounts.removeAll(ownedAccounts);
+
+            return accessibleAccounts;
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            return new ArrayList<>();
+        }
     }
 }

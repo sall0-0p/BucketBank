@@ -29,7 +29,7 @@ public class CurrencyManager {
     public boolean validateCurrency(ItemStack item) {
         FileConfiguration config = plugin.getConfig();
 
-        int CURRENCY_MODEL_DATA = config.getInt("currency.customModelData");
+        int CURRENCY_MODEL_DATA = config.getInt("currency.custom_model_data");
         String CURRENCY_NAME = config.getString("currency.name");
         String CURRENCY_MATERIAL = config.getString("currency.item");
     
@@ -39,7 +39,12 @@ public class CurrencyManager {
             if (meta != null && meta.hasDisplayName()) {
                 // TODO: Remove this
                 if (ChatColor.stripColor(meta.getDisplayName()).equals(CURRENCY_NAME) || ChatColor.stripColor(meta.getDisplayName()).equals("Ⱥ Фрины")) {
-                    return true;
+                    if (meta.hasLore()) {
+                        return true;
+                    } else {
+                        logger.info("No lore!");
+                        return false;
+                    }
                 }
             }
 
@@ -101,7 +106,7 @@ public class CurrencyManager {
         FileConfiguration config = plugin.getConfig();
 
         String CURRENCY_MATERIAL = config.getString("currency.item");
-        int CURRENCY_MODEL_DATA = config.getInt("currency.customModelData");
+        int CURRENCY_MODEL_DATA = config.getInt("currency.custom_model_data");
         String CURRENCY_NAME = config.getString("currency.name");
         List<String> CURRENCY_LORE = config.getStringList("currency.lore");
     
@@ -184,6 +189,20 @@ public class CurrencyManager {
             }
         } else {
             logger.info("Player inventory is null.");
+        }
+        
+        return count;
+    }
+
+    public int getEmptySlots(Player player) {
+        int count = 0;
+
+        if (player.getInventory().getContents() != null) {
+            for (ItemStack item : player.getInventory().getContents()) {
+                if (item == null) {
+                    count++;
+                }
+            }
         }
         
         return count;

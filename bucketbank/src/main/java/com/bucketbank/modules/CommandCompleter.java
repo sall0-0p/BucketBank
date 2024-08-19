@@ -78,6 +78,7 @@ public class CommandCompleter implements TabCompleter {
                                 addIfHasPermission(player, result, "reinstate", "bucketfinance.user.reinstate");
                                 addIfHasPermission(player, result, "limit", "bucketfinance.user.limit");
                                 addIfHasPermission(player, result, "accounts", "bucketfinance.user.accounts");
+                                addIfHasPermission(player, result, "shared", "bucketfinance.user.shared");
 
                                 return result;
                             case 4:
@@ -91,6 +92,8 @@ public class CommandCompleter implements TabCompleter {
                                     case "reinstate":
                                         return new ArrayList<>();
                                     case "accounts":
+                                        return new ArrayList<>();
+                                    case "shared":
                                         return new ArrayList<>();
                                     case "limit":
                                         List<String> resultt = new ArrayList<>();
@@ -132,6 +135,8 @@ public class CommandCompleter implements TabCompleter {
                                 addIfHasPermission(player, result, "suspend", "bucketfinance.account.suspend");
                                 addIfHasPermission(player, result, "reinstate", "bucketfinance.account.reinstate");
                                 addIfHasPermission(player, result, "credit", "bucketfinance.account.credit");
+                                addIfHasPermission(player, result, "rename", "bucketfinance.account.rename");
+                                addIfHasPermission(player, result, "special", "bucketfinance.account.create");
 
 
                                 return result;
@@ -139,6 +144,10 @@ public class CommandCompleter implements TabCompleter {
                                 switch (args[2]) {
                                     case "create":
                                         return new ArrayList<>();
+                                    case "special":
+                                        List<String> resultttt = new ArrayList<>();
+                                        resultttt.add("create");
+                                        return resultttt;
                                     case "history":
                                         return new ArrayList<>();
                                     case "suspend":
@@ -162,12 +171,17 @@ public class CommandCompleter implements TabCompleter {
                                         resulttt.add("get");
                                         
                                         return resulttt;
+                                    
+                                    case "rename":
+                                        return new ArrayList<>();
                                 }
                             case 5:
                                 switch (args[3]) {
                                     case "set":
                                         return new ArrayList<>();
                                     case "get":
+                                        return new ArrayList<>();
+                                    case "create":
                                         return new ArrayList<>();
                                 }
                         }
@@ -178,6 +192,7 @@ public class CommandCompleter implements TabCompleter {
                     addIfHasPermission(player, result, "balance", "bucketfinance.balance");
                     addIfHasPermission(player, result, "pay", "bucketfinance.pay");
                     addIfHasPermission(player, result, "about", "bucketfinance.about");
+                    addIfHasPermission(player, result, "help", "bucketfinance.help");
                     addIfHasPermission(player, result, "history", "bucketfinance.account.history");
                     addIfHasPermission(player, result, "accounts", "bucketfinance.user.accounts");
         

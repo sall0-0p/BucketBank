@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 
 import com.bucketbank.App;
 import com.bucketbank.modules.Command;
+import com.bucketbank.modules.DiscordLogger;
 import com.bucketbank.modules.main.Account;
 import com.bucketbank.modules.main.User;
 import com.bucketbank.modules.managers.ATMManager;
@@ -20,6 +21,7 @@ public class WithdrawCommand implements Command {
     App plugin = App.getPlugin();
     CurrencyManager currencyManager = plugin.getCurrencyManager();
     ATMManager atmManager = App.getATMManager();
+    DiscordLogger discordLogger = App.getDiscordLogger();
 
     @Override
     public void execute(CommandSender sender, String[] args) {
@@ -44,13 +46,15 @@ public class WithdrawCommand implements Command {
                 float amount = Integer.valueOf(args[1]);
 
                 if (!account.isSuspended()) {
-                    if (account.hasAccess(user) || sender.hasPermission("bucketfinance.atm.withdraw.others")) {
+                    if (account.hasAccess(user) || sender.hasPermission("bucketfinance.atm.others")) {
                         if (account.getBalance() >= amount) {
                             boolean result = currencyManager.withdrawCurrency(player, (int) amount);
                         
                             if (result) {
                                 account.modifyBalance(-amount);
                                 player.playSound(Sound.sound(Key.key("entity.experience_orb.pickup"), Sound.Source.MASTER, 1f, 1f), Sound.Emitter.self());
+
+                                discordLogger.logRaw("atm", "{\"content\":null,\"embeds\":[{\"title\":\"Снятие со счета\",\"color\":13083000,\"fields\":[{\"name\":\"Игрок\",\"value\":\"" + player.getName() +"\"},{\"name\":\"Сума\",\"value\":\"" + String.valueOf(amount) + "\"}]}],\"attachments\":[]}");
                             }
                         } else {
                             throw new Exception("<red>| This account lacks funds!");

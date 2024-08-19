@@ -1,4 +1,5 @@
 # BucketFinance configuration
+config_version: 1
 
 # Currency settings
 currency:
@@ -7,7 +8,7 @@ currency:
   lore: 
     - "<reset><gray>Это официальная валюта сервера"
     - "<reset><gray>Подписано игроком Bank_FrienMine"
-  custom_model: 1
+  custom_model_data: 1
 
 decimal_format: "#.##"
 atm_range: 5
@@ -17,9 +18,19 @@ webhooks:
     color: "7642541"
     title: "Использование банкомата"
     url: https://discord.com/api/webhooks/1270859123453595769/tv_6O9l_9QBBadfWW5fBZZd5bHb7VPkNl1zn--A13Pwot2nS1k4cqenj4OI8U1_o0Sr0
+  atm_currency:
+    color: "12608355"
+    title: "Обмен фринов"
+    url: https://discord.com/api/webhooks/1270859123453595769/tv_6O9l_9QBBadfWW5fBZZd5bHb7VPkNl1zn--A13Pwot2nS1k4cqenj4OI8U1_o0Sr0
+  atm_diamonds:
+    color: "6728143"
+    title: "Обмен алмазов"
+    url: https://discord.com/api/webhooks/1270859123453595769/tv_6O9l_9QBBadfWW5fBZZd5bHb7VPkNl1zn--A13Pwot2nS1k4cqenj4OI8U1_o0Sr0
+  atm_update:
+    color: "13413420"
+    title: "Обновление фринов"
+    url: https://discord.com/api/webhooks/1270859123453595769/tv_6O9l_9QBBadfWW5fBZZd5bHb7VPkNl1zn--A13Pwot2nS1k4cqenj4OI8U1_o0Sr0
   transactions: 
-    color: "12824870"
-    title: "Перевод средств"
     url: https://discord.com/api/webhooks/1270859299165569105/DN6ZBkQ-WgYZdpE16myMNSKuZSOqOUI3xVwFcTB0XYzzsoXPZLzMe67MiGgNEwut_AiG
 
 

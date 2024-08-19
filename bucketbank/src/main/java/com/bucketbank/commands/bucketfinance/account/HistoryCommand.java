@@ -60,7 +60,7 @@ public class HistoryCommand implements Command {
             User accountOwner = new User(account.getOwnerId());
             User senderUser = new User(((Player) sender).getUniqueId().toString());
 
-            if (!account.hasAccess(senderUser) && !sender.hasPermission("bucketfinance.account.user.others")) {
+            if (!account.hasAccess(senderUser) && !sender.hasPermission("bucketfinance.account.history.others")) {
                 throw new Exception("Sender has no access to account!");
             }
 

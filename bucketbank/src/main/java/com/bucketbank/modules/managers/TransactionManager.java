@@ -36,6 +36,10 @@ public class TransactionManager {
             throw new Exception("Cannot use deleted accounts!");
         }
 
+        if (amount < 0.001) {
+            throw new Exception("You cannot send less then 0.01!");
+        }
+
         Transaction transaction = new Transaction(sourceAccount, destinationAccount, amount, description);
         processTransaction(transaction);
 

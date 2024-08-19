@@ -21,6 +21,8 @@ import com.bucketbank.modules.managers.NotificationManager;
 import com.bucketbank.modules.managers.TransactionManager;
 
 public class App extends JavaPlugin {
+    private static final int currentConfigVersion = 1;
+
     private static Logger logger;
     private static DatabaseManager databaseManager;
     private static TransactionManager transactionManager;
@@ -44,6 +46,9 @@ public class App extends JavaPlugin {
         // Config loading
         saveDefaultConfig();
         config = getConfig();
+        if (config.getInt("config_version") != currentConfigVersion) {
+            logger.severe("Running with wrong config version, please update your config!");
+        }
 
         loadDataFile();
         loadEconomyData();
